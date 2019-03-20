@@ -8,10 +8,20 @@ void Cmd_Moto_f()
 	Com_Printf("Running CoD 2 1.4");
 }
 
+void Cbuf_AddText_(const char *s)
+{
+	__asm
+	{
+		mov eax, s
+		lea edx, Cbuf_AddText
+		call edx
+	}
+}
+
 void Cmd_Test_f()
 {
 	Com_Printf("var = %s", Dvar_GetVariantString("shortversion")->current.string);
-	Cbuf_AddText("say \"hello world\"");
+	Cbuf_AddText_("say \"hello world\"");
 }
 #if 1
 // Parameters: 

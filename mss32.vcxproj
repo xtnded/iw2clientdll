@@ -23,7 +23,7 @@
     <ProjectGuid>{6F66885A-B322-46A5-9B2C-948634A37703}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>moto2</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>mss32</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
