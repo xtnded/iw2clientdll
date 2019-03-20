@@ -11,7 +11,7 @@ void Cmd_Moto_f()
 void Cmd_Test_f()
 {
 	Com_Printf("var = %s", Dvar_GetVariantString("shortversion")->current.string);
-	SV_SendServerCommand(0, "h \"hello world\"");
+	Cbuf_AddText("say \"hello world\"");
 }
 #if 1
 // Parameters: 
@@ -113,7 +113,7 @@ void handleImGuiWindows()
 		ImGui::InputText("server cmd", serverCommand, sizeof(serverCommand));
 		if (ImGui::Button("send"))
 		{
-			SV_SendServerCommand(0, "%s", serverCommand);
+			Cbuf_AddText(serverCommand);
 		}
 		ImGui::End();
 	}

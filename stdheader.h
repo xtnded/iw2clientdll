@@ -176,7 +176,7 @@ void Com_Printf(const char* fmt, Ts ... ts) {
 	Com_PrintMessage(0, va(fmt, ts...));
 }
 static void(*SV_SendServerCommand)(int, const char*, ...) = (void(*)(int, const char*, ...))0x045A670;
-
+static void(*Cbuf_AddText)(const char*) = (void(*)(const char*))0x40AD22;
 static void(*Cmd_AddCommand)(const char*, void*) = (void(*)(const char*, void*))0x4212F0;
 static dvar_t*(*Dvar_GetVariantString)(const char*) = (dvar_t*(*)(const char*))0x4373A0;
 //static void(*Dvar_SetVariant)(dvar_t*,void*,int) = (dvar_t(*)(void*,void*,int))0x438900;
