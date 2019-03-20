@@ -1,0 +1,140 @@
+#include "stdheader.h"
+#include "gl33.h"
+//#pragma comment(lib, "opengl32.lib")
+#include "imgui.h"
+
+void Cmd_Moto_f()
+{
+	Com_Printf("Running CoD 2 1.4");
+}
+
+void Cmd_Test_f()
+{
+	Com_Printf("var = %s", Dvar_GetVariantString("shortversion")->current.string);
+	SV_SendServerCommand(0, "h \"hello world\"");
+}
+#if 1
+// Parameters: 
+
+// *filename = file path, 
+
+// width, height = screenshot dimensions (resolution)
+
+// *BMP_Data = BMP data :) 
+
+
+int SaveBMP(char *filename, int width, int height, unsigned char *BMP_Data)
+{
+	FILE *file_ptr;
+	BITMAPINFOHEADER bmp_infoh;
+	BITMAPFILEHEADER bmp_fileh;
+	unsigned int counter;
+	unsigned char tempRGB;
+
+	file_ptr = fopen(filename, "wb");
+	if (!file_ptr)
+	{
+		return 0;
+	}
+
+	bmp_fileh.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	bmp_fileh.bfReserved1 = 0;
+	bmp_fileh.bfReserved2 = 0;
+	bmp_fileh.bfSize = sizeof(BITMAPFILEHEADER);
+	bmp_fileh.bfType = 0x4D42;
+
+	bmp_infoh.biBitCount = 24;
+	bmp_infoh.biClrImportant = 0;
+	bmp_infoh.biClrUsed = 0;
+	bmp_infoh.biCompression = BI_RGB;
+	bmp_infoh.biHeight = height;
+	bmp_infoh.biPlanes = 1;
+	bmp_infoh.biSize = sizeof(BITMAPINFOHEADER);
+	bmp_infoh.biSizeImage = width * abs(height) * 3;
+	bmp_infoh.biWidth = width;
+	bmp_infoh.biXPelsPerMeter = 0;
+	bmp_infoh.biYPelsPerMeter = 0;
+
+	for (counter = 0; counter < bmp_infoh.biSizeImage; counter += 3)
+	{
+		tempRGB = BMP_Data[counter];
+		BMP_Data[counter] = BMP_Data[counter + 2];
+		BMP_Data[counter + 2] = tempRGB;
+	}
+
+	fwrite(&bmp_fileh, 1, sizeof(BITMAPFILEHEADER), file_ptr);
+	fwrite(&bmp_infoh, 1, sizeof(BITMAPINFOHEADER), file_ptr);
+	fwrite(BMP_Data, 1, bmp_infoh.biSizeImage, file_ptr);
+
+	fclose(file_ptr);
+	return 1;
+}
+
+// Shoots the screen :)
+
+// Parameters:
+
+// - width, height = screenshot dimensions (resolution)
+
+// Screenshot is named "Screenshot.bmp"
+
+
+void *BMPw_Data; // BMP Data
+
+void SaveScreenshot(int width, int height)
+{
+	BMPw_Data = malloc(width * height * 3);
+	memset(BMPw_Data, 0, width * height * 3);
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, BMPw_Data);
+	SaveBMP((char*)"screenshot_cod2.bmp", width, height, (unsigned char*)BMPw_Data);
+
+	free(BMPw_Data);
+}
+#endif
+void Cmd_Screenshot_f()
+{
+	SaveScreenshot(1024, 768);
+}
+
+void Cmd_Hook_f()
+{
+
+	void patch_opcode_glbindtexture(void);
+	patch_opcode_glbindtexture();
+}
+
+void handleImGuiWindows()
+{
+	static char serverCommand[4096] = { 0 };
+
+	if (ImGui::Begin("haha"))
+	{
+
+		ImGui::InputText("server cmd", serverCommand, sizeof(serverCommand));
+		if (ImGui::Button("send"))
+		{
+			SV_SendServerCommand(0, "%s", serverCommand);
+		}
+		ImGui::End();
+	}
+}
+
+//bool cl_inited = false;
+
+void CL_Init( void )
+{
+	void(*o)(void) = (void(*)(void))0x411650;
+
+	o();
+
+	Cmd_AddCommand("hook", Cmd_Hook_f);
+
+	Dvar_SetFromStringByName("moto", "yes");
+	Cmd_AddCommand("moto", Cmd_Moto_f);
+	Cmd_AddCommand("test", Cmd_Test_f);
+	Cmd_AddCommand("ss", Cmd_Screenshot_f);
+	Com_Printf(MOD_NAME " loaded!\n");
+
+	Com_Printf("^6bla: %d\n", GetCurrentThreadId());
+	//cl_inited = true;
+}

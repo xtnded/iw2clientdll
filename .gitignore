@@ -1,0 +1,14 @@
+
+*.db
+.vs/moto2/v15/.suo
+*.opendb
+*.ipch
+.vs/mss32/v15/.suo
+*.obj
+*.tlog
+*.pdb
+*.ipdb
+*.iobj
+*.exp
+*.log
+*.pch
