@@ -12,3 +12,7 @@
 *.exp
 *.log
 *.pch
+*.idb
+*.lib
+*.ilk
+*.dll
