@@ -2,17 +2,29 @@
 #include <stdio.h>
 #include <Windows.h>
 
-typedef int (*load_chakracore)();
 
-int chakracore_init() {
+typedef int (*printf_t)(const char *format, ...);
+typedef int (*chakracore_init_t)();
+typedef int (*chakracore_set_printf_t)(printf_t);
+
+chakracore_init_t chakracore_init = NULL;
+chakracore_set_printf_t chakracore_set_printf = NULL;
+
+int chakracore_prepare() {
+
 	HMODULE handle = LoadLibrary("ChakraCoreInterface.dll");
-	auto func_load_chakracore = (load_chakracore)GetProcAddress(handle, "load_chakracore");
-	int a = (int)GetProcAddress(handle, "load_chakracore");
 
-	printf("cci handle=%d func_load_chakracore=%d\n", handle, func_load_chakracore);
+	chakracore_init       = (chakracore_init_t      )GetProcAddress(handle, "chakracore_init");
+	chakracore_set_printf = (chakracore_set_printf_t)GetProcAddress(handle, "chakracore_set_printf");
+	
+	printf("cci handle=%d chakracore_init=%d chakracore_set_printf=%d\n", handle, chakracore_init, chakracore_set_printf);
 
-	if (func_load_chakracore)
-		func_load_chakracore();
+	if (chakracore_init)
+		chakracore_init();
+
+	if (chakracore_set_printf) {
+		chakracore_set_printf(printf);
+	}
 
 	return 1;
 }

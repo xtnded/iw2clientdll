@@ -1,3 +1,3 @@
 #pragma once
 
-int chakracore_init();
+int chakracore_prepare();

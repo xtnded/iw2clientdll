@@ -2,6 +2,6 @@
 #include "chakracore.h"
 
 int main() {
-	chakracore_init();
+	chakracore_prepare();
 	getchar();
 }
