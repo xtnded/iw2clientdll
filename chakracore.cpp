@@ -12,7 +12,7 @@ chakracore_set_printf_t chakracore_set_printf = NULL;
 
 int chakracore_prepare() {
 
-	HMODULE handle = LoadLibrary("ChakraCoreInterface.dll");
+	HMODULE handle = LoadLibraryA("ChakraCoreInterface.dll");
 
 	chakracore_init       = (chakracore_init_t      )GetProcAddress(handle, "chakracore_init");
 	chakracore_set_printf = (chakracore_set_printf_t)GetProcAddress(handle, "chakracore_set_printf");

@@ -18,3 +18,4 @@
 *.dll
 *.db-wal
 *.db-shm
+*.dll
