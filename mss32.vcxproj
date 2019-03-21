@@ -23,7 +23,7 @@
     <ProjectGuid>{6F66885A-B322-46A5-9B2C-948634A37703}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>moto2</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>mss32</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cg_local.h" />
+    <ClInclude Include="cg_public.h" />
     <ClInclude Include="gl33.h" />
     <ClInclude Include="memutil.h" />
     <ClInclude Include="stdafx.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cg_consolecmds.cpp" />
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="cl_main.cpp" />
     <ClCompile Include="d3d9.cpp" />
