@@ -133,7 +133,7 @@ static char    * __cdecl va(const char *format, ...) {
 
 
 	va_start(argptr, format);
-	vsprintf(temp_buffer, format, argptr);
+	vsnprintf(temp_buffer, sizeof(temp_buffer), format, argptr);
 	va_end(argptr);
 
 	if ((len = strlen(temp_buffer)) >= MAX_VA_STRING) {

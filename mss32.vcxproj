@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cg_local.h" />
+    <ClInclude Include="cg_public.h" />
     <ClInclude Include="gl33.h" />
     <ClInclude Include="memutil.h" />
     <ClInclude Include="stdafx.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cg_consolecmds.cpp" />
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="cl_main.cpp" />
     <ClCompile Include="d3d9.cpp" />

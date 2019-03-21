@@ -33,6 +33,12 @@
     <ClInclude Include="gl33.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="cg_local.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cg_public.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -105,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_dx9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cg_consolecmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

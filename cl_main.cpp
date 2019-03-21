@@ -2,6 +2,7 @@
 #include "gl33.h"
 //#pragma comment(lib, "opengl32.lib")
 #include "imgui.h"
+#include "cg_public.h"
 
 void Cmd_Moto_f()
 {
@@ -147,4 +148,6 @@ void CL_Init( void )
 
 	Com_Printf("^6bla: %d\n", GetCurrentThreadId());
 	//cl_inited = true;
+
+	CG_InitConsoleCommands();
 }
