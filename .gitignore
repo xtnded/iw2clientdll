@@ -1,4 +1,4 @@
-
+*.exe
 *.db
 .vs/moto2/v15/.suo
 *.opendb
