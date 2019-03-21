@@ -16,3 +16,5 @@
 *.lib
 *.ilk
 *.dll
+*.db-wal
+*.db-shm
