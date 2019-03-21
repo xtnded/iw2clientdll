@@ -39,6 +39,9 @@
     <ClInclude Include="cg_public.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="chakracore.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -114,6 +117,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cg_consolecmds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chakracore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
