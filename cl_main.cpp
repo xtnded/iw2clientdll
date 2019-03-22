@@ -158,7 +158,7 @@ void CL_Frame()
 		if(preventMouseGrab)
 			SetWndCapture(true);
 	}
-	Com_Printf("frame!\n");
+	//Com_Printf("frame!\n");
 }
 
 //bool cl_inited = false;
