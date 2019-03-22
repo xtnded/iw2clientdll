@@ -4,6 +4,10 @@
 #include "imgui.h"
 #include "cg_public.h"
 
+dvar_t *con_restricted = (dvar_t*)0x5E132C;
+int *cls_keyCatchers = (int*)0x96B654;
+#define KEYCATCH_CONSOLE (1)
+
 void Cmd_Moto_f()
 {
 	Com_Printf("Running CoD 2 1.4");
@@ -128,6 +132,33 @@ void handleImGuiWindows()
 		}
 		ImGui::End();
 	}
+}
+
+void SetWndCapture(bool);
+
+//our own kind of cl_frame to handle things each frame / tick
+void CL_Frame()
+{
+	void(*o)() = (void(*)())0x040F850;
+	o();
+
+	extern bool preventMouseGrab;
+	bool prev = preventMouseGrab;
+	preventMouseGrab = (*cls_keyCatchers & KEYCATCH_CONSOLE) == KEYCATCH_CONSOLE;
+	if (prev)
+	{
+		if (!preventMouseGrab)
+		{
+			//closing console
+			SetWndCapture(false);
+		}
+	}
+	else
+	{
+		if(preventMouseGrab)
+			SetWndCapture(true);
+	}
+	Com_Printf("frame!\n");
 }
 
 //bool cl_inited = false;

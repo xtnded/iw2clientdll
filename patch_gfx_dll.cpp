@@ -686,7 +686,7 @@ void patch_gfx_dll()
 	}
 	*/
 	//extern char sys_cmdline[1024];
-	if (!strstr(GetCommandLineA(), "windowed"))
+	if (!strstr(GetCommandLineA(), "r_windowed"))
 		return;
 	XUNLOCK((void*)GFX_OFF(0x10011564), 1);
 	XUNLOCK((void*)GFX_OFF(0x10012A8A), 1);

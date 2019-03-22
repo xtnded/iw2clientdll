@@ -13,5 +13,7 @@ void CG_abc_f() {
 
 void CG_InitConsoleCommands(void) {
 
+	void Cmd_ImGui_f();
+	Cmd_AddCommand("imgui", Cmd_ImGui_f);
 	Cmd_AddCommand("cg_abc", CG_abc_f);
 }

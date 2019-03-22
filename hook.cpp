@@ -68,11 +68,12 @@ __declspec(naked) void hook_gfx_driver()
 }
 
 bool imguiEnabled = false;
+bool preventMouseGrab = false;
 
 BOOL(__stdcall*oSetCursorPos)(int, int);
 BOOL __stdcall hSetCursorPos(int x, int y)
 {
-	if (imguiEnabled)
+	if (imguiEnabled|| preventMouseGrab)
 		return TRUE;
 	SetCursorPos(x, y);
 }
@@ -82,7 +83,7 @@ POINT cachedPt;
 BOOL(__stdcall*oGetCursorPos)(LPPOINT);
 BOOL __stdcall hGetCursorPos(LPPOINT pt)
 {
-	if (imguiEnabled)
+	if (imguiEnabled|| preventMouseGrab)
 	{
 		pt->x = cachedPt.x;
 		pt->y = cachedPt.y;
@@ -91,6 +92,37 @@ BOOL __stdcall hGetCursorPos(LPPOINT pt)
 	GetCursorPos(pt);
 	cachedPt.x = pt->x;
 	cachedPt.y = pt->y;
+}
+
+HWND gameHwnd = NULL;
+
+void SetWndCapture(bool f)
+{
+	if (!gameHwnd)return;
+	if (f)
+	{
+		//XUNLOCK((void*)0x464750, 1);
+		//*(unsigned char*)0x464750 = 0xc3; //retn
+		ReleaseCapture();
+	}
+	else
+	{
+		SetCapture(gameHwnd);
+#if 0
+		//sub_464750
+		void(*uh)();
+		*(int*)&uh = 0x464750;
+		uh();
+#endif
+	}
+	ShowCursor(f ? 1 : 0);
+}
+
+void Cmd_ImGui_f()
+{
+	//escape
+	imguiEnabled ^= 1;
+	SetWndCapture(imguiEnabled);
 }
 
 LRESULT CALLBACK MyWndProc(
@@ -110,6 +142,7 @@ LRESULT CALLBACK MyWndProc(
 	switch (uMsg)
 	{
 	case WM_CREATE:
+		gameHwnd = hwnd;
 		SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) | WS_SIZEBOX);
 		break;
 
@@ -128,27 +161,12 @@ LRESULT CALLBACK MyWndProc(
 	{
 		switch (wParam)
 		{
-		case 27:
-			//escape
-			imguiEnabled ^= 1;
+		case VK_ESCAPE:
 			if (imguiEnabled)
 			{
-				//XUNLOCK((void*)0x464750, 1);
-				//*(unsigned char*)0x464750 = 0xc3; //retn
-				ReleaseCapture();
+				Cmd_ImGui_f();
+				return 0;
 			}
-			else
-			{
-				SetCapture(hwnd);
-#if 0
-				//sub_464750
-				void(*uh)();
-				*(int*)&uh = 0x464750;
-				uh();
-#endif
-			}
-
-			ShowCursor(imguiEnabled ? 1 : 0);
 			break;
 		default:
 			//Com_Printf("key = %d\n", wParam);
@@ -243,6 +261,11 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 
 	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 	__call(0x57DCD3, (int)WinMain);
+
+
+	/* doesn't really match up to q3 and its quite inlined changed mhm */
+	void CL_Frame();
+	__call(0x43506A, (int)CL_Frame);
 
 	void CL_Init( void );
 	__call(0x4348B9, (int)CL_Init);
