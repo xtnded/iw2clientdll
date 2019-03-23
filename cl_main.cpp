@@ -3,6 +3,7 @@
 //#pragma comment(lib, "opengl32.lib")
 #include "imgui.h"
 #include "cg_public.h"
+#include "chakracore.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
 int *cls_keyCatchers = (int*)0x96B654;
@@ -163,6 +164,11 @@ void CL_Frame()
 
 //bool cl_inited = false;
 
+int Com_PrintString(const char *str) {
+	Com_Printf("%s", str);
+	return 0;
+}
+
 void CL_Init( void )
 {
 	void(*o)(void) = (void(*)(void))0x411650;
@@ -181,4 +187,7 @@ void CL_Init( void )
 	//cl_inited = true;
 
 	CG_InitConsoleCommands();
+
+	chakracore_prepare(Com_PrintString);
+	chakracore_eval("console.log(\"^3Loaded ChakraCore\");");
 }
