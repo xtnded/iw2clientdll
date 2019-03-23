@@ -2,29 +2,40 @@
 #include <stdio.h>
 #include <Windows.h>
 
+chakracore_init_t       dll_chakracore_init = NULL;
+chakracore_set_printf_t dll_chakracore_set_printf = NULL;
+chakracore_eval_t       dll_chakracore_eval = NULL;
 
-typedef int (*printf_t)(const char *format, ...);
-typedef int (*chakracore_init_t)();
-typedef int (*chakracore_set_printf_t)(printf_t);
-
-chakracore_init_t chakracore_init = NULL;
-chakracore_set_printf_t chakracore_set_printf = NULL;
-
-int chakracore_prepare() {
+int chakracore_prepare(printf_t printer) {
 
 	HMODULE handle = LoadLibrary("ChakraCoreInterface.dll");
 
-	chakracore_init       = (chakracore_init_t      )GetProcAddress(handle, "chakracore_init");
-	chakracore_set_printf = (chakracore_set_printf_t)GetProcAddress(handle, "chakracore_set_printf");
+	dll_chakracore_init       = (chakracore_init_t      )GetProcAddress(handle, "chakracore_init");
+	dll_chakracore_set_printf = (chakracore_set_printf_t)GetProcAddress(handle, "chakracore_set_printf");
+	dll_chakracore_eval       = (chakracore_eval_t      )GetProcAddress(handle, "chakracore_eval");
 	
-	printf("cci handle=%d chakracore_init=%d chakracore_set_printf=%d\n", handle, chakracore_init, chakracore_set_printf);
+#if 1
+	printf("cci handle=%d\n", handle);
+	printf("dll_chakracore_init       = %d\n", dll_chakracore_init      );
+	printf("dll_chakracore_set_printf = %d\n", dll_chakracore_set_printf);
+	printf("dll_chakracore_eval       = %d\n", dll_chakracore_eval      );
+#endif
 
-	if (chakracore_init)
-		chakracore_init();
-
-	if (chakracore_set_printf) {
-		chakracore_set_printf(printf);
+	if (dll_chakracore_set_printf) {
+		dll_chakracore_set_printf(printer);
 	}
 
+	if (dll_chakracore_init)
+		dll_chakracore_init();
+
+
 	return 1;
+}
+
+int chakracore_eval(const char *code) {
+	if (dll_chakracore_eval == NULL) {
+		printf("dll_chakracore_eval == NULL\n");
+		return 0;
+	}
+	return dll_chakracore_eval(code);
 }
