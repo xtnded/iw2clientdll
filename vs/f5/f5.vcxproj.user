@@ -5,4 +5,9 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>C:\games\cod2_1_3_clean_for_mapping\</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommand>C:\games\cod2_1_3_clean_for_mapping\iw3mp.exe</LocalDebuggerCommand>
+    <LocalDebuggerWorkingDirectory>C:\games\cod2_1_3_clean_for_mapping</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
