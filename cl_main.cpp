@@ -221,4 +221,15 @@ void CL_Init( void )
 
 	chakracore_prepare(Com_PrintString);
 	chakracore_eval("console.log(\"^3Loaded ChakraCore\");");
+	const char *eval_repl =
+		"eval_repl = function(code) {"\
+		"	try {					 "\
+		"		var ret = eval(code);"\
+		"		console.log(ret)	 "\
+		"	}						 "\
+		"	catch (e) {				 "\
+		"		console.log(e);		 "\
+		"	}						 "\
+		"};							 ";
+	chakracore_eval(eval_repl);
 }

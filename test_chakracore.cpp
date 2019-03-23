@@ -20,5 +20,21 @@ int main() {
 	chakracore_eval("b = 2");
 	chakracore_eval("c = a + b");
 	chakracore_eval("console.log(\"c is\", c)");
+
+
+	const char *eval_repl =
+		"eval_repl = function(code) {"\
+		"	try {					 "\
+		"		var ret = eval(code);"\
+		"		console.log(ret)	 "\
+		"	}						 "\
+		"	catch (e) {				 "\
+		"		console.log(e);		 "\
+		"	}						 "\
+		"};							 ";
+	chakracore_eval(eval_repl);
+	chakracore_eval("eval_repl(\"112233\");"); // test succces case
+	chakracore_eval("eval_repl(\";:_-:;\");"); // test fail case
+
 	getchar();
 }

@@ -25,6 +25,14 @@ void CG_js_f() {
 		line += " ";
 	}
 	//Com_Printf("line: %s\n", line.c_str());
+
+	// wrap the code up for eval_repl so we can print the output, use try/catch etc., makes it easier than filthy JS api
+	std::string replstring;
+	replstring += "eval_repl(\"";
+	replstring += line;
+	replstring += "\");";
+	chakracore_eval(replstring.c_str());
+
 	chakracore_eval(line.c_str());
 
 }
