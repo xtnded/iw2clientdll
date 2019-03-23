@@ -192,6 +192,18 @@ static void Dvar_SetString(const char *_dvar, const char *strval)
 		Dvar_RegisterString(_dvar, strval, 4160);
 }
 
+typedef enum
+{
+	NA_BOT, NA_BAD, NA_LOOPBACK, NA_BROADCAST, NA_IP
+} netadrtype_t;
+
+typedef struct
+{
+	netadrtype_t type;
+	char ip[4];
+	unsigned short port;
+} netadr_t;
+
 static
 int Sys_IsAdmin() {
 	int b;

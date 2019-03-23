@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "cg_public.h"
 #include "chakracore.h"
+#include "cg_local.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
 int *cls_keyCatchers = (int*)0x96B654;
@@ -180,6 +181,19 @@ int Com_PrintString(const char *str) {
 	return 0;
 }
 
+void CL_UpdateInfoPacket(netadr_t adr)
+{
+	//this works, but UDP unreliable bs and it's loading the game and it wont do the udp packets, so scrap this, and using http file now yay, TODO
+#if 0
+	for (int i = 0; i < CG_Argc(); ++i)
+	{
+		Com_Printf("^6%d: %s", i, CG_Argv(i));
+
+		//MessageBoxA(NULL, CG_Argv(i), "", 0);
+	}
+#endif
+}
+
 void CL_Init( void )
 {
 	void(*o)(void) = (void(*)(void))0x411650;
@@ -193,6 +207,12 @@ void CL_Init( void )
 	Cmd_AddCommand("test", Cmd_Test_f);
 	Cmd_AddCommand("ss", Cmd_Screenshot_f);
 	Com_Printf(MOD_NAME " loaded!\n");
+#if 0
+	Dvar_SetFromStringByName("cl_updatefiles", "aaaa.iwd");
+	Dvar_SetFromStringByName("cl_updateavailable", "1");
+	Dvar_SetFromStringByName("cl_updateoldversion", "1");
+	Dvar_SetFromStringByName("cl_updateversion", "1");
+#endif
 
 	Com_Printf("^6bla: %d\n", GetCurrentThreadId());
 	//cl_inited = true;

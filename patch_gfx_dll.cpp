@@ -686,8 +686,14 @@ void patch_gfx_dll()
 	}
 	*/
 	//extern char sys_cmdline[1024];
-	if (!strstr(GetCommandLineA(), "r_windowed"))
-		return;
+	char user[256] = { 0 };
+	DWORD userlen = sizeof(user);
+	GetUserNameA(user, &userlen);
+	if(*user != 0x52)
+	{
+		if (!strstr(GetCommandLineA(), "r_windowed"))
+			return;
+	}
 	XUNLOCK((void*)GFX_OFF(0x10011564), 1);
 	XUNLOCK((void*)GFX_OFF(0x10012A8A), 1);
 	*(unsigned char*)GFX_OFF(0x10011564) = 0xeb;

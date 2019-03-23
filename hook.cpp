@@ -75,7 +75,7 @@ BOOL __stdcall hSetCursorPos(int x, int y)
 {
 	if (imguiEnabled|| preventMouseGrab)
 		return TRUE;
-	SetCursorPos(x, y);
+	return SetCursorPos(x, y);
 }
 
 POINT cachedPt;
@@ -200,6 +200,29 @@ LRESULT CALLBACK MyWndProc(
 	return o(hwnd, uMsg, wParam, lParam);
 }
 
+typedef struct
+{
+	char server[5][64];
+} updateservers_t;
+
+updateservers_t *updateservers = (updateservers_t*)0x966C08;
+static const char *updateServerStr = "xtnded.org";
+
+void CL_ResolveUpdateServers()
+{
+
+	for (int i = 0; i < 5; ++i)
+	{
+		snprintf(updateservers->server[i], sizeof(updateservers->server[i]), "%s", updateServerStr);
+	}
+
+	void(*o)(void) = (void(*)(void))0x4B4E20;
+	o();
+
+	//at cl_init it's too late meh
+	//i realized i had [5][64] backwards and kept crashing, and fixed bunch of stuff didnt need fixing, but this way it works aswell so oh well
+}
+
 void applyHooks()
 {
 	__try
@@ -260,6 +283,13 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	__ffcall(0x46483B, (int)hSetCursorPos);
 	__ffcall(0x4649E9, (int)hSetCursorPos);
 
+
+
+#define CLIENT_UPDATE_PORT (25561)
+	*(unsigned int*)(0x4B4F10 + 1) = CLIENT_UPDATE_PORT;
+	__call(0x41162F, (int)CL_ResolveUpdateServers);
+	void CL_UpdateInfoPacket(netadr_t);
+	__call(0x40EF9C, (int)CL_UpdateInfoPacket);
 	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 	__call(0x57DCD3, (int)WinMain);
 
