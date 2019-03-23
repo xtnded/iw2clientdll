@@ -135,7 +135,11 @@ void handleImGuiWindows()
 }
 
 void SetWndCapture(bool);
-
+int *renderThreadId = (int*)0xD528D8;
+void *devFont = (void*)0x14EB4FC;
+float *font_xscale = (float*)0xC94C08;
+float *font_yscale = (float*)0xC94C0C;
+void *consoleFont = (void*)0x966C04;
 //our own kind of cl_frame to handle things each frame / tick
 void CL_Frame()
 {
@@ -158,6 +162,13 @@ void CL_Frame()
 		if(preventMouseGrab)
 			SetWndCapture(true);
 	}
+	if (!CL_DrawText)
+	{
+		CL_DrawText = (void(*)(const char*,int, void*,float,float,float,float,float*,int)) (*(void**)0x68A31C);
+	}
+	float clr[] = { 255,255,255,255 };
+	//CL_DrawText("CoD2 1.4 Developer Edition", 1000, (int)consoleFont, 100, 100, *font_xscale, *font_yscale, clr, 0);
+	//CL_DrawText("AAAAAAAAAAAAAAAA", 0x7FFFFFFF, consoleFont, 1.f, 1.f, 1065353216, 1065353216, (float*)0x59BCA8, 0);
 	//Com_Printf("frame!\n");
 }
 
