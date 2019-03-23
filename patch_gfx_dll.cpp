@@ -1,6 +1,7 @@
 #include "stdheader.h"
 #include "memutil.h"
 #include "storage.h"
+#include "helpers.h"
 
 // DirectX
 #include <d3d9.h>
@@ -686,10 +687,7 @@ void patch_gfx_dll()
 	}
 	*/
 	//extern char sys_cmdline[1024];
-	char user[256] = { 0 };
-	DWORD userlen = sizeof(user);
-	GetUserNameA(user, &userlen);
-	if(*user != 0x52)
+	if(!Sys_IsPHP()) //i like having always windowed <3
 	{
 		if (!strstr(GetCommandLineA(), "r_windowed"))
 			return;

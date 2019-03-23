@@ -124,7 +124,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;MOTO2_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /D "USE_CURL" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,6 +160,7 @@
     <ClInclude Include="cg_public.h" />
     <ClInclude Include="chakracore.h" />
     <ClInclude Include="gl33.h" />
+    <ClInclude Include="helpers.h" />
     <ClInclude Include="memutil.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stdheader.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="d3d9.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="gl33.c" />
+    <ClCompile Include="helpers.cpp" />
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
