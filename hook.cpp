@@ -89,9 +89,10 @@ BOOL __stdcall hGetCursorPos(LPPOINT pt)
 		pt->y = cachedPt.y;
 		return TRUE;
 	}
-	GetCursorPos(pt);
+	auto result = GetCursorPos(pt);
 	cachedPt.x = pt->x;
 	cachedPt.y = pt->y;
+	return result;
 }
 
 HWND gameHwnd = NULL;
