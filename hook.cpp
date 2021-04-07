@@ -332,6 +332,8 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	PATCH_PUSH_STRING_PTR_VALUE(0x4064C1, "1.4");
 	PATCH_PUSH_STRING_PTR_VALUE(0x4346DE, __DATE__ __TIME__);
 	PATCH_PUSH_STRING_PTR_VALUE(0x4346E3, "pc_1.4_1_0");
+	PATCH_PUSH_STRING_PTR_VALUE(0x407180, va("%s %s", __DATE__, __TIME__) );
+	PATCH_PUSH_STRING_PTR_VALUE(0x407185, "pc_1.4_1_0");
 
 	//nop splash screen
 	__nop(0x466555, 0x466555 + 5);
