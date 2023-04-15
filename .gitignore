@@ -20,6 +20,5 @@
 *.db-shm
 *.txt
 *.recipe
-*.dll.recipe
 !Release/mss32.dll
 .vs
