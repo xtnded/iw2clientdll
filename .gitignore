@@ -20,3 +20,5 @@
 *.db-shm
 *.dll
 Release/deployment.txt
+.vs/mss32/FileContentIndex/read.lock
+.vs/mss32/v17/.suo
