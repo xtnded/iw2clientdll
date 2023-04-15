@@ -689,7 +689,7 @@ void patch_gfx_dll()
 	*/
 	//extern char sys_cmdline[1024];
 	cvar_t* r_windowed = Cvar_RegisterBool("r_windowed", "0", CVAR_ARCHIVE);
-	if (r_windowed->integer == 1) {
+	if (r_windowed->integer) {
 		XUNLOCK((void*)GFX_OFF(0x10011564), 1);
 		XUNLOCK((void*)GFX_OFF(0x10012A8A), 1);
 		*(unsigned char*)GFX_OFF(0x10011564) = 0xeb;
