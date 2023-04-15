@@ -27,6 +27,12 @@ typedef void(*Com_Printf_t)(const char*, ...);
 Com_Printf_t Com_Printf = (Com_Printf_t)0x40A3DC;
 #endif
 
+typedef float vec_t;
+typedef vec_t vec2_t[2];
+typedef vec_t vec3_t[3];
+typedef vec_t vec4_t[4];
+typedef vec_t vec5_t[5];
+
 /* dvar->flags */
 #define DVAR_ARCHIVE		(1 << 0)	// 0x0001
 #define DVAR_USERINFO		(1 << 1)	// 0x0002
@@ -42,6 +48,18 @@ Com_Printf_t Com_Printf = (Com_Printf_t)0x40A3DC;
 #define DVAR_CHANGEABLE_RESET	(1 << 12)	// 0x1000
 #define DVAR_EXTERNAL		(1 << 14)	// 0x4000
 #define DVAR_AUTOEXEC		(1 << 15)	// 0x8000
+
+#define	CVAR_ARCHIVE		1
+#define	CVAR_USERINFO		2
+#define	CVAR_SERVERINFO		4
+#define	CVAR_SYSTEMINFO		8
+#define	CVAR_INIT			16
+#define	CVAR_LATCH			32
+#define	CVAR_ROM			64
+#define CVAR_CHEAT			128
+#define	CVAR_TEMP			256
+#define CVAR_NORESTART		1024
+#define	CVAR_USER_CREATED	16384
 
 enum dvarType_t
 {
@@ -84,13 +102,6 @@ union DvarLimits
 	} integer64;
 };
 
-#pragma pack(push, 4)
-struct vec4_t
-{
-	float x, y, z, w;
-};
-#pragma pack(pop)
-
 union DvarValue
 {
 	bool enabled;
@@ -103,6 +114,107 @@ union DvarValue
 	const char *string;
 	char color[4];
 };
+
+typedef struct
+{
+	byte red;
+	byte green;
+	byte blue;
+	byte alpha;
+}ucolor_t;
+
+
+typedef enum {
+	CVAR_BOOL,
+	CVAR_FLOAT,
+	CVAR_VEC2,
+	CVAR_VEC3,
+	CVAR_VEC4,
+	CVAR_INT,
+	CVAR_ENUM,
+	CVAR_STRING,
+	CVAR_COLOR
+}cvarType_t;
+
+typedef union
+{
+	float floatval;
+	int integer;
+	const char* string;
+	byte boolean;
+	vec4_t vec4;
+	vec3_t vec3;
+	vec2_t vec2;
+	ucolor_t color;
+}CvarValue_t;
+
+
+typedef struct {
+	union {
+		int imin;
+		float fmin;
+		int enumCount;
+	};
+	union {
+		int imax;
+		float fmax;
+		const char** enumStrings;
+	};
+}CvarLimits_t;
+
+typedef struct cvar_s
+{
+	char* name;
+	unsigned short flags;
+	byte type;
+	byte modified;
+	union
+	{
+		float floatval;
+		int integer;
+		char* string;
+		byte boolean;
+		vec2_t vec2;
+		vec3_t vec3;
+		vec4_t vec4;
+		ucolor_t color;
+	};
+	union
+	{
+		float latchedFloatval;
+		int latchedInteger;
+		char* latchedString;
+		byte latchedBoolean;
+		vec2_t latchedVec2;
+		vec3_t latchedVec3;
+		vec4_t latchedVec4;
+		ucolor_t latchedColor;
+	};
+	union
+	{
+		float resetFloatval;
+		int resetInteger;
+		char* resetString;
+		byte resetBoolean;
+		vec2_t resetVec2;
+		vec3_t resetVec3;
+		vec4_t resetVec4;
+		ucolor_t resetColor;
+	};
+	union
+	{
+		int imin;
+		float fmin;
+	};
+	union
+	{
+		int imax;
+		float fmax;
+		const char** enumStr;
+	};
+	struct cvar_s* next;
+	struct cvar_s* hashNext;
+} cvar_t;
 
 #pragma pack(push, 4)
 struct dvar_t
@@ -185,6 +297,13 @@ static dvar_t*(*Dvar_GetVariantString)(const char*) = (dvar_t*(*)(const char*))0
 //^BUGGED ATM
 static dvar_t*(*Dvar_RegisterString)(const char*, const char*, unsigned short) = (dvar_t*(*)(const char*, const char*, unsigned short))0x437DE0;
 static void(*Dvar_SetFromStringByName)(const char*, const char*) = (void(*)(const char*, const char*))0x439150;
+
+typedef cvar_t* (*Cvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
+static const Cvar_RegisterBool_t Cvar_RegisterBool = (Cvar_RegisterBool_t)0x438040;
+
+typedef cvar_t* (*Cvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
+static const Cvar_RegisterFloat_t Cvar_RegisterFloat = (Cvar_RegisterFloat_t)0x438100;
+
 static void Dvar_SetString(const char *_dvar, const char *strval)
 {
 	void *dvar = Dvar_GetVariantString(_dvar);
@@ -299,18 +418,3 @@ bool Sys_ElevateProgram(char *arg3, bool restart) {
 	return true;
 	//PostQuitMessage(0);
 }
-
-#if 0
-static void __call(unsigned int off, unsigned int loc) {
-#ifdef _WIN32
-	DWORD tmp;
-	VirtualProtect((void*)off, 5, PAGE_EXECUTE_READWRITE, &tmp);
-#endif
-	int foffset = loc - (off + 5);
-	memcpy((void *)(off + 1), &foffset, 4);
-	FlushInstructionCache(GetCurrentProcess(), (void*)off, 5);
-#ifdef _WIN32
-	VirtualProtect((void*)off, 5, tmp, &tmp);
-#endif
-}
-#endif

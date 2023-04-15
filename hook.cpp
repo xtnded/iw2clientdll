@@ -4,6 +4,7 @@
 #include "storage.h"
 #include "stdheader.h"
 #include "detours.h"
+
 void Main_UnprotectModule(HMODULE hModule)
 {
 	PIMAGE_DOS_HEADER header = (PIMAGE_DOS_HEADER)hModule;
