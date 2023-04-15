@@ -670,7 +670,8 @@ void __declspec(naked) creating_dx_device()
 
 void patch_gfx_dll()
 {
-	HookCreateDevice();
+	
+	//HookCreateDevice(); //it's crashing the game while doing vid_restart TODO
 	//sleep
 	//__nop(GFX_OFF(0x10012778), GFX_OFF(0x10012778) + 8);
 

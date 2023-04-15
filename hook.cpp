@@ -342,5 +342,8 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	//fix for the blackscreen bug by php
 	__nop(0x4B9569, 2);
 
+	//fix for the blackscreen bug by php
+	__nop(0x4B9569, 2);
+
 	__jmp(0x466270, (int)improper_closed);
 }
