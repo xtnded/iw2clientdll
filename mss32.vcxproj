@@ -108,7 +108,6 @@
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="chakracore.cpp" />
     <ClCompile Include="cl_main.cpp" />
-    <ClCompile Include="d3d9.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="gl33.c" />
     <ClCompile Include="helpers.cpp" />
@@ -124,11 +123,12 @@
     <ClCompile Include="mss32.cpp" />
     <ClCompile Include="patch_gfx_dll.cpp" />
     <ClCompile Include="render.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    <ClCompile Include="storage.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="storage.cpp" />
     <ClCompile Include="unzip.cpp" />
     <ClCompile Include="win_main.cpp" />
     <ClCompile Include="xuid.cpp" />
