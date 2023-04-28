@@ -5,6 +5,9 @@
 #include "stdheader.h"
 #include "detours.h"
 
+extern cvar_t* cl_imguiEnabled;
+extern bool imgui_enabled(cvar_t*);
+
 void Main_UnprotectModule(HMODULE hModule)
 {
 	PIMAGE_DOS_HEADER header = (PIMAGE_DOS_HEADER)hModule;
@@ -120,11 +123,16 @@ void SetWndCapture(bool f)
 	ShowCursor(f ? 1 : 0);
 }
 
+
+// eating a lot of memory probably but cba to think on a better check
 void Cmd_ImGui_f()
 {
+
+	imguiEnabled ^= (const int)imgui_enabled(cl_imguiEnabled);
 	//escape
-	imguiEnabled ^= 1;
 	SetWndCapture(imguiEnabled);
+
+	//client needs to do /vid_restart in order to make code go through the if once again
 }
 
 LRESULT CALLBACK MyWndProc(

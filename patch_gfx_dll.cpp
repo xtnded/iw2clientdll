@@ -670,8 +670,7 @@ void __declspec(naked) creating_dx_device()
 
 void patch_gfx_dll()
 {
-	
-	//HookCreateDevice(); //it's crashing the game while doing vid_restart TODO
+	extern bool imguiEnabled;
 	//sleep
 	//__nop(GFX_OFF(0x10012778), GFX_OFF(0x10012778) + 8);
 
@@ -695,4 +694,7 @@ void patch_gfx_dll()
 		*(unsigned char*)GFX_OFF(0x10011564) = 0xeb;
 		*(unsigned char*)GFX_OFF(0x10012A8A) = 0xeb;
 	}
+	else {
+		HookCreateDevice();
+	}//STUFF FOR IMGUI
 }
