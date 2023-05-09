@@ -670,7 +670,6 @@ void __declspec(naked) creating_dx_device()
 
 void patch_gfx_dll()
 {
-	extern bool imguiEnabled;
 	//sleep
 	//__nop(GFX_OFF(0x10012778), GFX_OFF(0x10012778) + 8);
 
@@ -681,13 +680,14 @@ void patch_gfx_dll()
 	__call(GFX_OFF(0x100132A2), (int)R_Init);
 	/*
 	if (storage::file_exists("qdraw.dll"))
-	{
+	{cl_console_fraction
 		XUNLOCK((void*)0x1019CC68, 1);
 		*(unsigned char*)0x1019CC68 = 'q';
 	}
 	*/
 	//extern char sys_cmdline[1024];
-	cvar_t* r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
+	cvar_t* cl_imguiEnabled = Cvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE);
+	cvar_t *r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
 	if (r_windowed->boolean) {
 		XUNLOCK((void*)GFX_OFF(0x10011564), 1);
 		XUNLOCK((void*)GFX_OFF(0x10012A8A), 1);
@@ -695,6 +695,7 @@ void patch_gfx_dll()
 		*(unsigned char*)GFX_OFF(0x10012A8A) = 0xeb;
 	}
 	else {
-		HookCreateDevice();
+		if(cl_imguiEnabled->boolean)
+			HookCreateDevice();
 	}//STUFF FOR IMGUI
 }

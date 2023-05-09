@@ -127,10 +127,15 @@ void SetWndCapture(bool f)
 // eating a lot of memory probably but cba to think on a better check
 void Cmd_ImGui_f()
 {
-
-	imguiEnabled ^= (const int)imgui_enabled(cl_imguiEnabled);
-	//escape
-	SetWndCapture(imguiEnabled);
+	cvar_t* r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
+	if (!r_windowed->boolean) {
+		imguiEnabled ^= (const int)imgui_enabled(cl_imguiEnabled);
+		//escape
+		SetWndCapture(imguiEnabled);
+	}
+	else {
+		Com_Printf("In order to use imgui, you need to disable windowed mode!\n`");
+	}
 
 	//client needs to do /vid_restart in order to make code go through the if once again
 }
