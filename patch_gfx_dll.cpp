@@ -680,7 +680,7 @@ void patch_gfx_dll()
 	__call(GFX_OFF(0x100132A2), (int)R_Init);
 	/*
 	if (storage::file_exists("qdraw.dll"))
-	{cl_console_fraction
+	{
 		XUNLOCK((void*)0x1019CC68, 1);
 		*(unsigned char*)0x1019CC68 = 'q';
 	}
