@@ -30,7 +30,12 @@ Com_Printf_t Com_Printf = (Com_Printf_t)0x40A3DC;
 typedef float vec_t;
 typedef vec_t vec2_t[2];
 typedef vec_t vec3_t[3];
-typedef vec_t vec4_t[4];
+#pragma pack(push, 4)
+struct vec4_t
+{
+	float x, y, z, w;
+};
+#pragma pack(pop)
 typedef vec_t vec5_t[5];
 
 /* dvar->flags */
@@ -417,4 +422,19 @@ bool Sys_ElevateProgram(char *arg3, bool restart) {
 #endif
 	return true;
 	//PostQuitMessage(0);
+
+#if 0
+	static void __call(unsigned int off, unsigned int loc) {
+#ifdef _WIN32
+		DWORD tmp;
+		VirtualProtect((void*)off, 5, PAGE_EXECUTE_READWRITE, &tmp);
+#endif
+		int foffset = loc - (off + 5);
+		memcpy((void*)(off + 1), &foffset, 4);
+		FlushInstructionCache(GetCurrentProcess(), (void*)off, 5);
+#ifdef _WIN32
+		VirtualProtect((void*)off, 5, tmp, &tmp);
+#endif
+	}
+#endif
 }

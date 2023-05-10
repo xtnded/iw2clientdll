@@ -6,8 +6,11 @@
 #include "cg_local.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
+cvar_t* cl_imguiEnabled;
 int *cls_keyCatchers = (int*)0x96B654;
 #define KEYCATCH_CONSOLE (1)
+
+bool imgui_enabled(cvar_t*);
 
 void Cbuf_AddText_(const char *s)
 {
@@ -47,6 +50,8 @@ void CL_Frame()
 	void(*o)() = (void(*)())0x040F850;
 	o();
 
+	imgui_enabled(cl_imguiEnabled);
+
 	extern bool preventMouseGrab;
 	bool prev = preventMouseGrab;
 	preventMouseGrab = (*cls_keyCatchers & KEYCATCH_CONSOLE) == KEYCATCH_CONSOLE;
@@ -75,6 +80,11 @@ void CL_Frame()
 
 //bool cl_inited = false;
 
+// eating a lot of memory probably but cba to think on a better check
+bool imgui_enabled(cvar_t *cl_imguiEnabled) {
+	return cl_imguiEnabled->boolean == true;
+}
+
 int Com_PrintString(const char *str) {
 	Com_Printf("%s", str);
 	return 0;
@@ -100,6 +110,7 @@ void CL_Init( void )
 	o();
 
 	Dvar_SetFromStringByName("moto", "yes");
+	cl_imguiEnabled = Cvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
 	Com_Printf(MOD_NAME " loaded!\n");
 
 	//cl_inited = true;

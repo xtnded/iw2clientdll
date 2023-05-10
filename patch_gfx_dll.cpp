@@ -670,8 +670,6 @@ void __declspec(naked) creating_dx_device()
 
 void patch_gfx_dll()
 {
-	
-	//HookCreateDevice(); //it's crashing the game while doing vid_restart TODO
 	//sleep
 	//__nop(GFX_OFF(0x10012778), GFX_OFF(0x10012778) + 8);
 
@@ -688,11 +686,16 @@ void patch_gfx_dll()
 	}
 	*/
 	//extern char sys_cmdline[1024];
-	cvar_t* r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
+	cvar_t* cl_imguiEnabled = Cvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE);
+	cvar_t *r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
 	if (r_windowed->boolean) {
 		XUNLOCK((void*)GFX_OFF(0x10011564), 1);
 		XUNLOCK((void*)GFX_OFF(0x10012A8A), 1);
 		*(unsigned char*)GFX_OFF(0x10011564) = 0xeb;
 		*(unsigned char*)GFX_OFF(0x10012A8A) = 0xeb;
 	}
+	else {
+		if(cl_imguiEnabled->boolean)
+			HookCreateDevice();
+	}//STUFF FOR IMGUI
 }
