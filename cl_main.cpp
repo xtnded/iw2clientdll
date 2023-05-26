@@ -78,8 +78,6 @@ void CL_Frame()
 	//Com_Printf("frame!\n");
 }
 
-//bool cl_inited = false;
-
 // eating a lot of memory probably but cba to think on a better check
 bool imgui_enabled(cvar_t *cl_imguiEnabled) {
 	return cl_imguiEnabled->boolean == true;
