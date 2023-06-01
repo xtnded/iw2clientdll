@@ -1,6 +1,7 @@
 #pragma once
 
-#include "stdafx.h"
+#pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "Shell32.lib")
 
 #include <cstdio>
 #include <cstdlib>
@@ -8,35 +9,25 @@
 #include <string>
 #include <fstream>
 #include <cstdarg>
-
 #include <ShlObj.h>
 #include <Shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
-
 #include <ShellAPI.h>
-#pragma comment(lib, "Shell32.lib")
+
+/*Render stuff*/
+#define	MAX_RENDER_COMMANDS	0x40000
+#define	SMP_FRAMES		2
+#define	MAX_DRAWSURFS	0x10000
+#define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
+#define	MAX_ENTITIES	1023		// can't be increased without changing drawsurf bit packing
 
 #define DLL_EXPORT __declspec(dllexport)
 #define DLL_IMPORT __declspec(dllimport)
 
+extern DWORD gfx_dll_mp;
+#define GFX_OFF(x) (gfx_dll_mp + (x - 0x10000000))
+
 #define MOD_NAME "Moto2"
 #define MsgBox(x) MessageBoxA(0,x,0,0)
-
-#if 0
-typedef void(*Com_Printf_t)(const char*, ...);
-Com_Printf_t Com_Printf = (Com_Printf_t)0x40A3DC;
-#endif
-
-typedef float vec_t;
-typedef vec_t vec2_t[2];
-typedef vec_t vec3_t[3];
-#pragma pack(push, 4)
-struct vec4_t
-{
-	float x, y, z, w;
-};
-#pragma pack(pop)
-typedef vec_t vec5_t[5];
 
 /* dvar->flags */
 #define DVAR_ARCHIVE		(1 << 0)	// 0x0001
@@ -66,6 +57,37 @@ typedef vec_t vec5_t[5];
 #define CVAR_NORESTART		1024
 #define	CVAR_USER_CREATED	16384
 
+/*INFO STRINGS*/
+#define BIG_INFO_STRING     8192    // used for system info key only
+#define BIG_INFO_KEY        8192
+#define BIG_INFO_VALUE      8192
+
+#define MAX_HOSTNAME_LENGTH 1024
+
+#define Q_COLOR_ESCAPE  '^'
+#define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
+
+static float vColorBlack[4] = { 0,0,0,1 };
+static float vColorWhite[4] = { 1, 1, 1, 1 };
+static float vColorSelected[4] = { 1, 1, 0, 1 };
+
+typedef float vec_t;
+typedef vec_t vec2_t[2];
+typedef vec_t vec3_t[3];
+#pragma pack(push, 4)
+struct vec4_t
+{
+	float x, y, z, w;
+};
+#pragma pack(pop)
+typedef vec_t vec5_t[5];
+
+typedef struct {
+	byte	cmds[MAX_RENDER_COMMANDS];
+	int		used;
+} renderCommandList_t;
+
+/*Dvars*/
 enum dvarType_t
 {
 	DVAR_TYPE_INVALID = 0x0,
@@ -88,7 +110,7 @@ union DvarLimits
 {
 	struct {
 		int stringCount;
-		const char **strings;
+		const char** strings;
 	} enumeration;
 
 	struct {
@@ -111,14 +133,24 @@ union DvarValue
 {
 	bool enabled;
 	int integer;
-	unsigned int unsignedInt;
-	__int64 integer64;
-	unsigned __int64 unsignedInt64;
 	float value;
 	vec4_t vector;
 	const char *string;
 	char color[4];
 };
+
+typedef struct dvar_s {
+	int name;
+	short flags;
+	char type;
+	char modified;
+	DvarValue current;
+	int latched;
+	int reset;
+	DvarLimits domain;
+	int next;
+	int hashNext;
+} dvar_t;
 
 typedef struct
 {
@@ -128,7 +160,7 @@ typedef struct
 	byte alpha;
 }ucolor_t;
 
-
+/*Cvars*/
 typedef enum {
 	CVAR_BOOL,
 	CVAR_FLOAT,
@@ -221,101 +253,6 @@ typedef struct cvar_s
 	struct cvar_s* hashNext;
 } cvar_t;
 
-#pragma pack(push, 4)
-struct dvar_t
-{
-	const char *name;
-	//const char *description;
-	//int hash;
-	unsigned int flags;
-	dvarType_t type;
-	bool modified;
-	DvarValue current;
-	DvarValue latched;
-	DvarValue reset;
-	DvarLimits domain;
-	dvar_t *hashNext;
-	int unknown3;
-};
-#pragma pack(pop)
-
-static char    * __cdecl va(const char *format, ...) {
-	va_list argptr;
-#define MAX_VA_STRING   32000
-	static char temp_buffer[MAX_VA_STRING];
-	static char string[MAX_VA_STRING];      // in case va is called by nested functions
-	static int index = 0;
-	char    *buf;
-	int len;
-
-
-	va_start(argptr, format);
-	vsnprintf(temp_buffer, sizeof(temp_buffer), format, argptr);
-	va_end(argptr);
-
-	if ((len = strlen(temp_buffer)) >= MAX_VA_STRING) {
-		return string;
-		//Com_Error( ERR_DROP, "Attempted to overrun string in call to va()\n" );
-	}
-
-	if (len + index >= MAX_VA_STRING - 1) {
-		index = 0;
-	}
-
-	buf = &string[index];
-	memcpy(buf, temp_buffer, len + 1);
-
-	index += len + 1;
-
-	return buf;
-}
-
-//static void(*Com_Printf)(const char*, ...) = (void(*)(const char*, ...))0x40A3DC;
-template <typename T, typename ... Ts>
-T call(size_t addr, Ts ... ts) {
-	T(*f)(...);
-	*(T*)&f = (T)addr;
-	return f(ts...);
-}
-
-static void(*Com_PrintMessage)(int, const char*) = (void(*)(int, const char*))0x431D10;
-template <typename ... Ts>
-void Com_Printf(const char* fmt, Ts ... ts) {
-#if 0
-	//char out[256];
-	//sprintf(out, "Test: %f", CODPATCH);
-	//MessageBox(NULL, out, "MDLL", MB_OK);
-	if (CODPATCH == 5)
-		call<void*, const char*, Ts...>(0x437C00, fmt, ts...);
-	else if (CODPATCH == 1)
-		call<void*, const char*, Ts...>(0x4357B0, fmt, ts...);
-#endif
-	Com_PrintMessage(0, va(fmt, ts...));
-}
-static void(*SV_SendServerCommand)(int, const char*, ...) = (void(*)(int, const char*, ...))0x045A670;
-//static void(*SCR_DrawSmallStringExt)(float, float, const char*, float*) = (void(*)(float, float, const char*, float*))0x4146A0;
-static void(*CL_DrawText)(const char*, int, void*, float, float, float, float, float*, int) = 0;// = (void(*)(const char*, int, DWORD, float, float, float, float, float*, int))0x68A31C;
-static void(*Cbuf_AddText)(const char*) = (void(*)(const char*))0x40AD22;
-static void(*Cmd_AddCommand)(const char*, void*) = (void(*)(const char*, void*))0x4212F0;
-static dvar_t*(*Dvar_GetVariantString)(const char*) = (dvar_t*(*)(const char*))0x4373A0;
-//static void(*Dvar_SetVariant)(dvar_t*,void*,int) = (dvar_t(*)(void*,void*,int))0x438900;
-//^BUGGED ATM
-static dvar_t*(*Dvar_RegisterString)(const char*, const char*, unsigned short) = (dvar_t*(*)(const char*, const char*, unsigned short))0x437DE0;
-static void(*Dvar_SetFromStringByName)(const char*, const char*) = (void(*)(const char*, const char*))0x439150;
-
-typedef cvar_t* (*Cvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
-static const Cvar_RegisterBool_t Cvar_RegisterBool = (Cvar_RegisterBool_t)0x438040;
-
-typedef cvar_t* (*Cvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
-static const Cvar_RegisterFloat_t Cvar_RegisterFloat = (Cvar_RegisterFloat_t)0x438100;
-
-static void Dvar_SetString(const char *_dvar, const char *strval)
-{
-	void *dvar = Dvar_GetVariantString(_dvar);
-	if (!dvar)
-		Dvar_RegisterString(_dvar, strval, 4160);
-}
-
 typedef enum
 {
 	NA_BOT, NA_BAD, NA_LOOPBACK, NA_BROADCAST, NA_IP
@@ -328,113 +265,289 @@ typedef struct
 	unsigned short port;
 } netadr_t;
 
-static
-int Sys_IsAdmin() {
-	int b;
-	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-	PSID AdministratorsGroup;
-	b = AllocateAndInitializeSid(
-		&NtAuthority,
-		2,
-		SECURITY_BUILTIN_DOMAIN_RID,
-		DOMAIN_ALIAS_RID_ADMINS,
-		0, 0, 0, 0, 0, 0,
-		&AdministratorsGroup);
-	if (b)
-	{
-		if (!CheckTokenMembership(NULL, AdministratorsGroup, &b))
-		{
-			b = FALSE;
-		}
-		FreeSid(AdministratorsGroup);
-	}
+typedef enum {
+	SF_BAD,
+	SF_SKIP,				// ignore
+	SF_FACE,
+	SF_GRID,
+	SF_TRIANGLES,
+	SF_POLY,
+	SF_MD3,
+	SF_MD4,
+	SF_FLARE,
+	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
+	SF_DISPLAY_LIST,
 
-	return(b);
-}
+	SF_NUM_SURFACE_TYPES,
+	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
+} surfaceType_t;
 
-static
-int Sys_GetModulePathInfo(HMODULE module, char **path, char **filename, char **extension) {
-	int sep = '/';
-	static char szFileName[MAX_PATH + 1];
-	if (path)
-		*path = NULL;
-	if (filename)
-		*filename = NULL;
-	if (extension)
-		*extension = NULL;
+typedef struct dlight_s {
+	vec3_t	origin;
+	vec3_t	color;				// range from 0.0 to 1.0, should be color normalized
+	float	radius;
 
-	GetModuleFileNameA(module, szFileName, MAX_PATH);
+	vec3_t	transformed;		// origin in local coordinate system
+	int		additive;			// texture detail is lost tho when the lightmap is dark
+} dlight_t;
 
-	char *fn = strrchr(szFileName, sep);
-	if (fn == nullptr) {
-		sep = '\\';
-		fn = strrchr(szFileName, sep);
-	}
-	if (fn != NULL) {
-		*fn++ = 0;
+typedef enum {
+	RT_MODEL,
+	RT_POLY,
+	RT_SPRITE,
+	RT_BEAM,
+	RT_RAIL_CORE,
+	RT_RAIL_RINGS,
+	RT_LIGHTNING,
+	RT_PORTALSURFACE,		// doesn't draw anything, just info for portals
 
-		char *ext = strrchr(fn, '.');
+	RT_MAX_REF_ENTITY_TYPE
+} refEntityType_t;
 
-		if (ext != NULL) {
-			if (fn != ext) {
-				if (extension)
-					*ext++ = 0;
-				if (path)
-					*path = szFileName;
-				if (filename)
-					*filename = fn;
-				if (extension)
-					*extension = ext;
-			}
-		}
-	}
-	return sep;
-}
+typedef struct {
+	refEntityType_t	reType;
+	int			renderfx;
 
-static void(*Com_Quit_f)() = (void(*)())0x435D80;
+	handle_t	hModel;				// opaque type outside refresh
 
-static
-bool Sys_ElevateProgram(char *arg3, bool restart) {
-	if (Sys_IsAdmin() && !restart)
-		return false; //we already are admin
+	// most recent data
+	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
+	float		shadowPlane;		// projection shadows go here, stencils go slightly lower
 
-	char *fn;
+	vec3_t		axis[3];			// rotation vectors
+	boolean	nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	float		origin[3];			// also used as MODEL_BEAM's "from"
+	int			frame;				// also used as MODEL_BEAM's diameter
 
-	Sys_GetModulePathInfo(NULL, NULL, &fn, NULL);
+	// previous data for frame interpolation
+	float		oldorigin[3];		// also used as MODEL_BEAM's "to"
+	int			oldframe;
+	float		backlerp;			// 0.0 = current, 1.0 = old
 
-	char *arg;
-#ifdef UPDATE_EXE
-	arg = arg3;
-#else
-	if (!arg3)
-		arg = (char*)"allowdupe";
-	else
-		arg = va((char*)"allowdupe %s", arg3);
-#endif
-	DWORD err = ERROR_SUCCESS;
-	ShellExecuteA(NULL, "runas", fn, arg, ".", SW_SHOWNORMAL | SW_SHOW);
-	if ((err = GetLastError()) != ERROR_SUCCESS)
-		if (err != ERROR_CANCELLED);
-#ifdef UPDATE_EXE
-	exit(0);
-#else
-	Com_Quit_f();
-#endif
-	return true;
-	//PostQuitMessage(0);
+	// texturing
+	int			skinNum;			// inline skin index
+	handle_t	customSkin;			// NULL for default skin
+	handle_t	customShader;		// use one image for the entire thing
 
-#if 0
-	static void __call(unsigned int off, unsigned int loc) {
-#ifdef _WIN32
-		DWORD tmp;
-		VirtualProtect((void*)off, 5, PAGE_EXECUTE_READWRITE, &tmp);
-#endif
-		int foffset = loc - (off + 5);
-		memcpy((void*)(off + 1), &foffset, 4);
-		FlushInstructionCache(GetCurrentProcess(), (void*)off, 5);
-#ifdef _WIN32
-		VirtualProtect((void*)off, 5, tmp, &tmp);
-#endif
-	}
-#endif
+	// misc
+	byte		shaderRGBA[4];		// colors used by rgbgen entity shaders
+	float		shaderTexCoord[2];	// texture coordinates used by tcMod entity modifiers
+	float		shaderTime;			// subtracted from refdef time to control effect start times
+
+	// extra sprite information
+	float		radius;
+	float		rotation;
+} refEntity_t;
+// a trRefEntity_t has all the information passed in by
+// the client game, as well as some locally derived info
+
+typedef struct {
+	refEntity_t	e;
+
+	float		axisLength;		// compensate for non-normalized axis
+
+	boolean	needDlights;	// true for bmodels that touch a dlight
+	boolean	lightingCalculated;
+	vec3_t		lightDir;		// normalized direction towards light
+	vec3_t		ambientLight;	// color normalized to 0-255
+	int			ambientLightInt;	// 32 bit rgba packed
+	vec3_t		directedLight;
+} trRefEntity_t;
+
+typedef struct drawSurf_s {
+	unsigned			sort;			// bit combination for fast compares
+	surfaceType_t* surface;		// any of surface*_t
+} drawSurf_t;
+
+typedef struct {
+	vec3_t		xyz;
+	float		st[2];
+	byte		modulate[4];
+} polyVert_t;
+
+typedef struct srfPoly_s {
+	surfaceType_t	surfaceType;
+	handle_t		hShader;
+	int				fogIndex;
+	int				numVerts;
+	polyVert_t* verts;
+} srfPoly_t;
+
+// parameters to the main Error routine
+typedef enum {
+	ERR_FATAL,					// exit the entire game with a popup window
+	ERR_DROP,					// print to console and disconnect from game
+	ERR_SERVERDISCONNECT,		// don't kill server
+	ERR_DISCONNECT,				// client disconnected from the server
+	ERR_NEED_CD					// pop up the need-cd dialog
+} errorParm_t;
+
+typedef enum {
+	RC_END_OF_LIST,
+	RC_SET_COLOR,
+	RC_STRETCH_PIC,
+	RC_DRAW_SURFS,
+	RC_DRAW_BUFFER,
+	RC_SWAP_BUFFERS,
+	RC_SCREENSHOT
+} renderCommand_t;
+
+typedef struct {
+	int		commandId;
+	float	color[4];
+} setColorCommand_t;
+
+typedef struct
+{
+	uint64_t _bf0;
+}GfxDrawSurfFields;
+
+union GfxDrawSurf
+{
+	GfxDrawSurfFields fields;
+	uint64_t packed;
+};
+
+#pragma pack(push, 8)
+typedef struct MaterialInfo
+{
+	const char* name;
+	char gameFlags;
+	char sortKey;
+	char textureAtlasRowCount;
+	char textureAtlasColumnCount;
+	union GfxDrawSurf drawSurf;
+	int surfaceTypeBits;
+}MaterialInfo_t;
+
+struct Material
+{
+	MaterialInfo info;
+	int64_t stateBits;
+	short textureCount;
+	short constantCount;
+	int techniqueSet;
+	int textures;
+	int constants;
+};
+
+/* 7043 */
+#pragma pack(push, 2)
+typedef struct
+{
+	uint16_t letter;
+	char x0;
+	char y0;
+	char dx;
+	char pixelWidth;
+	char pixelHeight;
+	char pad;
+	float s0;
+	float t0;
+	float s1;
+	float t1;
+}Glyph;
+#pragma pack(pop)
+
+/* 7044 */
+typedef struct Font_s
+{
+	const char* fontName;
+	int pixelHeight;
+	int glyphCount;
+	Material* material;
+	Material* glowMaterial;
+	Glyph* glyphs;
+}Font_t;
+
+extern char* __cdecl va(const char* format, ...);
+extern void Dvar_SetString(const char* _dvar, const char* strval);
+extern void* R_GetCommandBuffer(int bytes);
+extern void RE_SetColor(const float* rgba);
+extern int Sys_IsAdmin();
+extern int Sys_GetModulePathInfo(HMODULE module, char** path, char** filename, char** extension);
+extern bool Sys_ElevateProgram(char* arg3, bool restart);
+extern void Q_strncpyz(char* dest, const char* src, int destsize);
+extern const char* Info_ValueForKey(const char* s, const char* key);
+extern char* Q_CleanStr(char* string, bool colors);
+extern char* Com_CleanHostname(char* string, bool colors);
+extern char* Com_CleanMapname(char* mapname);
+const char* GetStockGametypeName(char* gt);
+char* GetTxtGametypeName(char* gt, bool colors);
+extern const char* Com_GametypeName(char* gt, bool colors);
+
+typedef struct
+{
+	float scaleVirtualToReal[2];
+	float scaleVirtualToFull[2];
+	float scaleRealToVirtual[2];
+	float virtualViewableMin[2];
+	float virtualViewableMax[2];
+	float realViewportSize[2];
+	float realViewableMin[2];
+	float realViewableMax[2];
+	float subScreenLeft;
+}ScreenPlacement;
+
+typedef enum
+{
+	CA_DISCONNECTED = 0,
+	CA_CINEMATIC = 1,
+	CA_LOGO = 2,
+	CA_CONNECTING = 3,
+	CA_CHALLENGING = 4,
+	CA_CONNECTED = 5,
+	CA_LOADING = 6,
+	CA_PRIMED = 7,
+	CA_ACTIVE = 8
+} connstate_t;
+
+typedef dvar_t *(*Dvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
+extern Dvar_RegisterBool_t Dvar_RegisterBool;
+typedef dvar_t *(*Dvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
+extern Dvar_RegisterFloat_t Dvar_RegisterFloat;
+typedef dvar_t *(*Dvar_RegisterString_t)(const char*, const char*, unsigned short);
+extern Dvar_RegisterString_t Dvar_RegisterString;
+typedef dvar_t *(*Dvar_SetFromStringByName_t)(const char*, const char*);
+extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
+typedef dvar_t *(*Dvar_Set_t)(const char*, const char*);
+extern Dvar_Set_t Dvar_Set;
+typedef dvar_t *(*Dvar_SetVariant_t)(cvar_s* dvar, DvarValue value, enum DvarSetSource source);
+extern Dvar_SetVariant_t Dvar_SetVariant;
+typedef dvar_t *(*Dvar_GetVariantString_t)(const char*);
+extern Dvar_GetVariantString_t Dvar_GetVariantString;
+typedef void(*Cmd_AddCommand_t)(const char*, void*);
+extern Cmd_AddCommand_t Cmd_AddCommand;
+typedef void(*Com_PrintMessage_t)(int, const char*);
+extern Com_PrintMessage_t Com_PrintMessage;
+typedef void(*CL_DrawString_t)(int a1, int a2, const char* a3, int a4, int a5);
+extern CL_DrawString_t CL_DrawString;
+typedef void(*Com_Error_t)(int a1, const char* Format, ...);
+extern Com_Error_t Com_Error;
+typedef void(*Cbuf_AddText_t)(const char*);
+extern Cbuf_AddText_t Cbuf_AddText;
+//typedef void(*CL_DrawText_t)(float* scrPlace, const char* text, int maxChars, float* font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float color, int style);
+//extern CL_DrawText_t CL_DrawText;
+typedef void(*SV_SendServerCommand_t)(int, const char*, ...);
+extern SV_SendServerCommand_t SV_SendServerCommand;
+typedef void(*Com_Quit_f_t)();
+extern Com_Quit_f_t Com_Quit_f;
+typedef int(*Com_Printf_t)(const char* format, ...);
+extern Com_Printf_t Com_Printf;
+typedef void(*SCR_DrawSmallStringExt_t)(signed int x, signed int y, const char* string, const float* setColor);//__cdecl
+extern SCR_DrawSmallStringExt_t SCR_DrawSmallStringExt;
+typedef void(*CG_DrawBigDevStringColor_t)(const char*, int, int, int, int, int);
+extern CG_DrawBigDevStringColor_t CG_DrawBigDevStringColor;
+typedef void(*R_DrawText_t)(float x, float y, int font, float scale, const float* color, const char* text, float spacing, int limit, int flags);
+extern R_DrawText_t R_DrawText;
+//typedef char* (*Info_ValueForKey_t)(const char * s, const char *key);
+//extern Info_ValueForKey_t Info_ValueForKey;
+typedef int(*FS_ReadFile_t)(const char* qpath, void** buffer);
+extern FS_ReadFile_t FS_ReadFile;
+
+template <typename T, typename ... Ts>
+T call(size_t addr, Ts ... ts) {
+	T(*f)(...);
+	*(T*)&f = (T)addr;
+	return f(ts...);
 }

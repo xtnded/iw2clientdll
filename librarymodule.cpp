@@ -30,10 +30,8 @@ HMODULE WINAPI hLoadLibraryA(LPSTR lpFileName) {
 
 	if (!strcmp(lpFileName, "gfx_d3d_mp_x86_s.dll") || !strcmp(lpFileName, "gfx_gl_mp_x86_s.dll"))
 	{
-		extern DWORD gfx_dll_mp;
-		gfx_dll_mp = pBase;
-		void patch_gfx_dll();
-		patch_gfx_dll();
+		void patch_gfx_dll(DWORD);
+		patch_gfx_dll(pBase);
 	}
 
 	if (lowercase.find("opengl32") != std::string::npos)
