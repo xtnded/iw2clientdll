@@ -4,12 +4,12 @@
     <LocalDebuggerCommand>F:\Program Files\Steam\steamapps\common\Call of Duty 2\CoD2MP_s.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>F:\Program Files\Steam\steamapps\common\Call of Duty 2</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>+map mp_toujane</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>+password tango +connect mynl.pl:7</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>F:\Program Files\Steam\steamapps\common\Call of Duty 2\CoD2MP_s.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>F:\Program Files\Steam\steamapps\common\Call of Duty 2</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>+map mp_toujane</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>+password tango +connect mynl.pl:7</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

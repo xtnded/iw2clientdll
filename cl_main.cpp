@@ -3,14 +3,15 @@
 #include "imgui.h"
 #include "cg_public.h"
 #include "chakracore.h"
-#include "cg_local.h"
+//#include "cg_local.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
-cvar_t* cl_imguiEnabled;
+dvar_t *cl_imguiEnabled;
+dvar_t *discord;
 int *cls_keyCatchers = (int*)0x96B654;
 #define KEYCATCH_CONSOLE (1)
 
-bool imgui_enabled(cvar_t*);
+bool imgui_enabled(dvar_t*);
 
 void Cbuf_AddText_(const char *s)
 {
@@ -68,19 +69,19 @@ void CL_Frame()
 		if(preventMouseGrab)
 			SetWndCapture(true);
 	}
-	if (!CL_DrawText)
-	{
-		CL_DrawText = (void(*)(const char*,int, void*,float,float,float,float,float*,int)) (*(void**)0x68A31C);
-	}
-	float clr[] = { 255,255,255,255 };
+	//if (!CL_DrawText)
+	//{
+	//	CL_DrawText = (void(*)(float* scrPlace, const char* text, int maxChars, float* font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float color, int style)) (*(void**)0x68A31C);
+	//}
+	//float clr[] = { 255,255,255,255 };
 	//CL_DrawText("CoD2 1.4 Developer Edition", 1000, (int)consoleFont, 100, 100, *font_xscale, *font_yscale, clr, 0);
 	//CL_DrawText("AAAAAAAAAAAAAAAA", 0x7FFFFFFF, consoleFont, 1.f, 1.f, 1065353216, 1065353216, (float*)0x59BCA8, 0);
 	//Com_Printf("frame!\n");
 }
 
 // eating a lot of memory probably but cba to think on a better check
-bool imgui_enabled(cvar_t *cl_imguiEnabled) {
-	return cl_imguiEnabled->boolean == true;
+bool imgui_enabled(dvar_t *cl_imguiEnabled) {
+	return cl_imguiEnabled->current.enabled ? true : false;
 }
 
 int Com_PrintString(const char *str) {
@@ -108,10 +109,16 @@ void CL_Init( void )
 	o();
 
 	Dvar_SetFromStringByName("moto", "yes");
-	cl_imguiEnabled = Cvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
+	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
+	discord = Dvar_RegisterBool("discord", false, CVAR_LATCH | CVAR_ARCHIVE);
 	Com_Printf(MOD_NAME " loaded!\n");
 
-	//cl_inited = true;
+	if (discord->current.enabled) {
+		int CL_StartDiscord();
+		if (CL_StartDiscord() == -1) {
+			MessageBoxA(NULL, "Could not start discord integration", "Discord integration error", NULL);
+		}
+	}
 
 	CG_InitConsoleCommands();
 

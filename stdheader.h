@@ -1,5 +1,8 @@
 #pragma once
 
+#pragma comment(lib, "shlwapi.lib")
+#pragma comment(lib, "Shell32.lib")
+
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -10,32 +13,21 @@
 #include <Shlwapi.h>
 #include <ShellAPI.h>
 
-#pragma comment(lib, "shlwapi.lib")
-#pragma comment(lib, "Shell32.lib")
-
+/*Render stuff*/
 #define	MAX_RENDER_COMMANDS	0x40000
 #define	SMP_FRAMES		2
 #define	MAX_DRAWSURFS	0x10000
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
-#define	MAX_ENTITIES	1023		// can't be increased without changing drawsurf bit packing	
+#define	MAX_ENTITIES	1023		// can't be increased without changing drawsurf bit packing
+
 #define DLL_EXPORT __declspec(dllexport)
 #define DLL_IMPORT __declspec(dllimport)
+
 extern DWORD gfx_dll_mp;
 #define GFX_OFF(x) (gfx_dll_mp + (x - 0x10000000))
 
 #define MOD_NAME "Moto2"
 #define MsgBox(x) MessageBoxA(0,x,0,0)
-
-typedef float vec_t;
-typedef vec_t vec2_t[2];
-typedef vec_t vec3_t[3];
-#pragma pack(push, 4)
-struct vec4_t
-{
-	float x, y, z, w;
-};
-#pragma pack(pop)
-typedef vec_t vec5_t[5];
 
 /* dvar->flags */
 #define DVAR_ARCHIVE		(1 << 0)	// 0x0001
@@ -65,21 +57,37 @@ typedef vec_t vec5_t[5];
 #define CVAR_NORESTART		1024
 #define	CVAR_USER_CREATED	16384
 
-#define DLL_EXPORT __declspec(dllexport)
-#define DLL_IMPORT __declspec(dllimport)
+/*INFO STRINGS*/
+#define BIG_INFO_STRING     8192    // used for system info key only
+#define BIG_INFO_KEY        8192
+#define BIG_INFO_VALUE      8192
 
-#define MOD_NAME "Moto2"
-#define MsgBox(x) MessageBoxA(0,x,0,0)
+#define MAX_HOSTNAME_LENGTH 1024
+
+#define Q_COLOR_ESCAPE  '^'
+#define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
 
 static float vColorBlack[4] = { 0,0,0,1 };
 static float vColorWhite[4] = { 1, 1, 1, 1 };
 static float vColorSelected[4] = { 1, 1, 0, 1 };
+
+typedef float vec_t;
+typedef vec_t vec2_t[2];
+typedef vec_t vec3_t[3];
+#pragma pack(push, 4)
+struct vec4_t
+{
+	float x, y, z, w;
+};
+#pragma pack(pop)
+typedef vec_t vec5_t[5];
 
 typedef struct {
 	byte	cmds[MAX_RENDER_COMMANDS];
 	int		used;
 } renderCommandList_t;
 
+/*Dvars*/
 enum dvarType_t
 {
 	DVAR_TYPE_INVALID = 0x0,
@@ -125,14 +133,24 @@ union DvarValue
 {
 	bool enabled;
 	int integer;
-	unsigned int unsignedInt;
-	__int64 integer64;
-	unsigned __int64 unsignedInt64;
 	float value;
 	vec4_t vector;
-	const char* string;
+	const char *string;
 	char color[4];
 };
+
+typedef struct dvar_s {
+	int name;
+	short flags;
+	char type;
+	char modified;
+	DvarValue current;
+	int latched;
+	int reset;
+	DvarLimits domain;
+	int next;
+	int hashNext;
+} dvar_t;
 
 typedef struct
 {
@@ -142,7 +160,7 @@ typedef struct
 	byte alpha;
 }ucolor_t;
 
-
+/*Cvars*/
 typedef enum {
 	CVAR_BOOL,
 	CVAR_FLOAT,
@@ -234,24 +252,6 @@ typedef struct cvar_s
 	struct cvar_s* next;
 	struct cvar_s* hashNext;
 } cvar_t;
-
-#pragma pack(push, 4)
-struct dvar_t
-{
-	const char* name;
-	//const char *description;
-	//int hash;
-	unsigned int flags;
-	dvarType_t type;
-	bool modified;
-	DvarValue current;
-	DvarValue latched;
-	DvarValue reset;
-	DvarLimits domain;
-	dvar_t* hashNext;
-	int unknown3;
-};
-#pragma pack(pop)
 
 typedef enum
 {
@@ -391,6 +391,7 @@ typedef enum {
 	RC_SWAP_BUFFERS,
 	RC_SCREENSHOT
 } renderCommand_t;
+
 typedef struct {
 	int		commandId;
 	float	color[4];
@@ -466,6 +467,15 @@ extern void RE_SetColor(const float* rgba);
 extern int Sys_IsAdmin();
 extern int Sys_GetModulePathInfo(HMODULE module, char** path, char** filename, char** extension);
 extern bool Sys_ElevateProgram(char* arg3, bool restart);
+extern void Q_strncpyz(char* dest, const char* src, int destsize);
+extern const char* Info_ValueForKey(const char* s, const char* key);
+extern char* Q_CleanStr(char* string, bool colors);
+extern char* Com_CleanHostname(char* string, bool colors);
+extern char* Com_CleanMapname(char* mapname);
+const char* GetStockGametypeName(char* gt);
+char* GetTxtGametypeName(char* gt, bool colors);
+extern const char* Com_GametypeName(char* gt, bool colors);
+
 typedef struct
 {
 	float scaleVirtualToReal[2];
@@ -479,18 +489,33 @@ typedef struct
 	float subScreenLeft;
 }ScreenPlacement;
 
-typedef cvar_t* (*Cvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
-extern Cvar_RegisterBool_t Cvar_RegisterBool;
-typedef cvar_t* (*Cvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
-extern Cvar_RegisterFloat_t Cvar_RegisterFloat;
-typedef cvar_t* (*Dvar_RegisterString_t)(const char*, const char*, unsigned short);
+typedef enum
+{
+	CA_DISCONNECTED = 0,
+	CA_CINEMATIC = 1,
+	CA_LOGO = 2,
+	CA_CONNECTING = 3,
+	CA_CHALLENGING = 4,
+	CA_CONNECTED = 5,
+	CA_LOADING = 6,
+	CA_PRIMED = 7,
+	CA_ACTIVE = 8
+} connstate_t;
+
+typedef dvar_t *(*Dvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
+extern Dvar_RegisterBool_t Dvar_RegisterBool;
+typedef dvar_t *(*Dvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
+extern Dvar_RegisterFloat_t Dvar_RegisterFloat;
+typedef dvar_t *(*Dvar_RegisterString_t)(const char*, const char*, unsigned short);
 extern Dvar_RegisterString_t Dvar_RegisterString;
-typedef cvar_t* (*Dvar_SetFromStringByName_t)(const char*, const char*);
+typedef dvar_t *(*Dvar_SetFromStringByName_t)(const char*, const char*);
 extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
-typedef cvar_t* (*Dvar_Set_t)(const char*, const char*);
+typedef dvar_t *(*Dvar_Set_t)(const char*, const char*);
 extern Dvar_Set_t Dvar_Set;
-typedef void(*Dvar_SetVariant_t)(cvar_s* dvar, DvarValue value, enum DvarSetSource source);
+typedef dvar_t *(*Dvar_SetVariant_t)(cvar_s* dvar, DvarValue value, enum DvarSetSource source);
 extern Dvar_SetVariant_t Dvar_SetVariant;
+typedef dvar_t *(*Dvar_GetVariantString_t)(const char*);
+extern Dvar_GetVariantString_t Dvar_GetVariantString;
 typedef void(*Cmd_AddCommand_t)(const char*, void*);
 extern Cmd_AddCommand_t Cmd_AddCommand;
 typedef void(*Com_PrintMessage_t)(int, const char*);
@@ -499,12 +524,10 @@ typedef void(*CL_DrawString_t)(int a1, int a2, const char* a3, int a4, int a5);
 extern CL_DrawString_t CL_DrawString;
 typedef void(*Com_Error_t)(int a1, const char* Format, ...);
 extern Com_Error_t Com_Error;
-typedef cvar_t* (*Dvar_GetVariantString_t)(const char*);
-extern Dvar_GetVariantString_t Dvar_GetVariantString;
 typedef void(*Cbuf_AddText_t)(const char*);
 extern Cbuf_AddText_t Cbuf_AddText;
-typedef void(*CL_DrawText_t)(float* scrPlace, const char* text, int maxChars, float* font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float color, int style);
-extern CL_DrawText_t CL_DrawText;
+//typedef void(*CL_DrawText_t)(float* scrPlace, const char* text, int maxChars, float* font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float color, int style);
+//extern CL_DrawText_t CL_DrawText;
 typedef void(*SV_SendServerCommand_t)(int, const char*, ...);
 extern SV_SendServerCommand_t SV_SendServerCommand;
 typedef void(*Com_Quit_f_t)();
@@ -517,6 +540,10 @@ typedef void(*CG_DrawBigDevStringColor_t)(const char*, int, int, int, int, int);
 extern CG_DrawBigDevStringColor_t CG_DrawBigDevStringColor;
 typedef void(*R_DrawText_t)(float x, float y, int font, float scale, const float* color, const char* text, float spacing, int limit, int flags);
 extern R_DrawText_t R_DrawText;
+//typedef char* (*Info_ValueForKey_t)(const char * s, const char *key);
+//extern Info_ValueForKey_t Info_ValueForKey;
+typedef int(*FS_ReadFile_t)(const char* qpath, void** buffer);
+extern FS_ReadFile_t FS_ReadFile;
 
 template <typename T, typename ... Ts>
 T call(size_t addr, Ts ... ts) {

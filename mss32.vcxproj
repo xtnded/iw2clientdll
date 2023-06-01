@@ -67,7 +67,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>E:\github\iw2clientdll\discord;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>E:\github\iw2clientdll\discord\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call $(SolutionDir)postevent.bat</Command>
@@ -92,7 +92,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>E:\github\iw2clientdll\discord\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call $(SolutionDir)postevent.bat</Command>
@@ -102,7 +102,9 @@
     <ClInclude Include="cg_local.h" />
     <ClInclude Include="cg_public.h" />
     <ClInclude Include="chakracore.h" />
+    <ClInclude Include="client.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="discord.h" />
     <ClInclude Include="gl33.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="memutil.h" />
@@ -116,6 +118,7 @@
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="chakracore.cpp" />
     <ClCompile Include="cl_main.cpp" />
+    <ClCompile Include="discord.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="gl33.c" />
     <ClCompile Include="helpers.cpp" />

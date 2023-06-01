@@ -5,8 +5,8 @@
 #include "stdheader.h"
 #include "detours.h"
 
-extern cvar_t* cl_imguiEnabled;
-extern bool imgui_enabled(cvar_t*);
+extern dvar_t* cl_imguiEnabled;
+extern bool imgui_enabled(dvar_t*);
 
 void Main_UnprotectModule(HMODULE hModule)
 {
@@ -127,8 +127,8 @@ void SetWndCapture(bool f)
 // eating a lot of memory probably but cba to think on a better check
 void Cmd_ImGui_f()
 {
-	cvar_t* r_windowed = Cvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
-	if (!r_windowed->boolean) {
+	dvar_t* r_windowed = Dvar_RegisterBool("r_windowed", false, CVAR_ARCHIVE);
+	if (!r_windowed->current.enabled) {
 		imguiEnabled ^= (const int)imgui_enabled(cl_imguiEnabled);
 		//escape
 		SetWndCapture(imguiEnabled);
