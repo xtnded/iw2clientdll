@@ -153,7 +153,7 @@ DWORD WINAPI discord_communicate(LPVOID dest_path) {
             return -1;
         }
 
-        Sleep(3000);
+        Sleep(1000);
     }
     return 0;
 }
