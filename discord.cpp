@@ -1,40 +1,42 @@
-﻿#include <iostream>
-#include <windows.h>
-#include <string>
+﻿#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>  // For malloc and free
+#include <string.h>
 
 #include "stdheader.h"
+#include "discord.h"
 #include "client.h"
 
-int discordCommunicate(LPVOID destPath) {
-    HANDLE readHandle, writeHandle;
-    std::string buffer;
+DWORD WINAPI discord_communicate(LPVOID dest_path) {
+    HANDLE read_handle, write_handle;
+    char* buffer = NULL;
     PROCESS_INFORMATION pi;
     STARTUPINFOA si;
     DWORD written;
     SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
     ZeroMemory(&pi, sizeof(pi));
 
-    if (!CreatePipe(&readHandle, &writeHandle, &sa, 0)) {
+    if (!CreatePipe(&read_handle, &write_handle, &sa, 0)) {
         return -1;
     }
 
     GetStartupInfoA(&si);
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdInput = readHandle;
+    si.hStdInput = read_handle;
     si.dwFlags = STARTF_USESTDHANDLES;
-    SetHandleInformation(writeHandle, HANDLE_FLAG_INHERIT, 0);
+    SetHandleInformation(write_handle, HANDLE_FLAG_INHERIT, 0);
 
-    if (!CreateProcessA(NULL, reinterpret_cast<char*>(destPath), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-        return -1;
+    if (!CreateProcessA(NULL, (char*)dest_path, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+    	return -1;
     }
 
     const char* sep = "\t\0";
-    int sepLen = strlen(sep);
-    int concatLen;
+    int sep_len = strlen(sep);
+    int concat_len;
     const char* state;
 
     while (1) {
-        concatLen = 0;
+        concat_len = 0;
 
         switch (*cls_state) {
         case CA_DISCONNECTED: // Main menu
@@ -69,82 +71,85 @@ int discordCommunicate(LPVOID destPath) {
             break;
         }
 
-        concatLen += strlen(state) + sepLen;
+        concat_len += strlen(state) + sep_len;
 
-        std::string hostnamePP = "\0";
+        char* hostname_pp = (char*)"\0";
 
         if (*cls_state == CA_DISCONNECTED || *cls_state == CA_CONNECTED || *cls_state == CA_CONNECTING || *cls_state == CA_CHALLENGING) {
-            hostnamePP = "\0";
-            concatLen += hostnamePP.length() + sepLen;
+            hostname_pp = (char*)"\0";
+            concat_len += strlen(hostname_pp) + sep_len;
         }
         else {
-            const char* hostnameP = Info_ValueForKey(cs0, "sv_hostname");
-            std::string hostname(hostnameP);
-            std::string hostnameCopy = hostname;
-            hostnamePP = Com_CleanHostname(const_cast<char*>(hostnameCopy.c_str()), false);
-            concatLen += hostnamePP.length() + sepLen;
+            const char* hostname_p = Info_ValueForKey(cs0, "sv_hostname");
+            char hostname[64] = { 0 };
+            Q_strncpyz(hostname, hostname_p, sizeof(hostname));
+            hostname_pp = Com_CleanHostname(hostname, false);
+            concat_len += strlen(hostname_pp) + sep_len;
         }
 
-        const char* mapnameP = Info_ValueForKey(cs0, "mapname");
-        std::string mapname(mapnameP);
+        const char* mapname_p = Info_ValueForKey(cs0, "mapname");
+        char mapname[64] = { 0 };
+        Q_strncpyz(mapname, mapname_p, sizeof(mapname));
 
-        const char* mapnameCleanP = Info_ValueForKey(cs0, "mapname");
-        std::string mapnameClean(mapnameCleanP);
-        Com_CleanMapname(const_cast<char*>(mapnameClean.c_str()));
-        concatLen += mapname.length() + sepLen;
+        const char* mapnameClean_p = Info_ValueForKey(cs0, "mapname");
+        char mapnameClean[64] = { 0 };
+        Q_strncpyz(mapnameClean, mapnameClean_p, sizeof(mapnameClean));
+        Com_CleanMapname(mapnameClean);
+        concat_len += strlen(mapname) + sep_len;
 
-        std::string pictureName;
+        char* picture_name;
         if (mapname[0] == '\0') {
-            pictureName = "main_small\0";
+            picture_name = (char*)"main_small\0";
         }
         else {
-            pictureName = "main_small\0";
+            picture_name = (char*)"main_small\0";
         }
 
-        concatLen += pictureName.length() + sepLen;
+        concat_len += strlen(picture_name) + sep_len;
 
-        std::string gametypePP = "\0";
-        const char* gametypeP = Info_ValueForKey(cs0, "g_gametype");
-        std::string gametype(gametypeP);
+        const char* gametype_pp = (char*)"\0";
+        const char* gametype_p = Info_ValueForKey(cs0, "g_gametype");
+        char gametype[64] = { 0 };
+        Q_strncpyz(gametype, gametype_p, sizeof(gametype));
         if (*cls_state == CA_ACTIVE) {
-            char gametypeBuffer[256]; // Assuming a maximum length of 256 characters
-            strcpy(gametypeBuffer, gametype.c_str());
-            gametypePP = Com_GametypeName(gametypeBuffer, false);
-
-            state = gametypePP.c_str();
+            gametype_pp = Com_GametypeName(gametype, false);
+            state = gametype_pp;
         }
-        concatLen += strlen(gametypePP.c_str()) + sepLen + 2;
+        concat_len += strlen(gametype_pp) + sep_len + 2;
 
-        int charsRequired = snprintf(NULL, 0, "%d\0", *svr_players) + 1;
-        std::string players(charsRequired, '\0');
-        snprintf(&players[0], charsRequired, "%d\0", *svr_players);
-        concatLen += charsRequired;
+        int chars_required = snprintf(NULL, 0, "%d\0", *svr_players) + 1;
+        char* players = (char*)malloc(chars_required);
+        snprintf(players, chars_required, "%d\0", *svr_players);
+        concat_len += chars_required;
 
-        int svMaxClientsCharsRequired = atoi(Info_ValueForKey(cs0, "sv_maxclients"));
-        snprintf(NULL, 0, "%d\0", svMaxClientsCharsRequired);
-        std::string svMaxClients(svMaxClientsCharsRequired + 1, '\0');
-        snprintf(&svMaxClients[0], svMaxClientsCharsRequired, "%d\0", svMaxClientsCharsRequired);
-        concatLen += svMaxClientsCharsRequired + 1;
+        int sv_maxclients_chars_required = atoi(Info_ValueForKey(cs0, "sv_maxclients"));
+        snprintf(NULL, 0, "%d\0", sv_maxclients_chars_required);
+        char* sv_maxclients = (char*)malloc(sv_maxclients_chars_required + 1);
+        snprintf(sv_maxclients, sv_maxclients_chars_required, "%d\0", sv_maxclients_chars_required);
+        concat_len += sv_maxclients_chars_required + 1;
 
-        buffer.resize(concatLen);
-        buffer.clear();
-        buffer += state;
-        buffer += sep;
-        buffer += hostnamePP;
-        buffer += sep;
-        buffer += mapname;
-        buffer += sep;
-        buffer += pictureName;
-        buffer += sep;
-        buffer += gametypePP;
-        buffer += sep;
-        buffer += players;
-        buffer += sep;
-        buffer += svMaxClients;
-        buffer += sep;
-        buffer += "\n\0";
+	    buffer = (char*)realloc(buffer, concat_len);
+        if (buffer == NULL) {
+            return -1;
+        }
+        buffer[0] = '\0';
+        strcat(buffer, state);
+        strcat(buffer, sep);
+        strcat(buffer, hostname_pp);
+        strcat(buffer, sep);
+        strcat(buffer, mapname);
+        strcat(buffer, sep);
+        strcat(buffer, picture_name);
+        strcat(buffer, sep);
+        strcat(buffer, gametype_pp);
+        strcat(buffer, sep);
+        strcat(buffer, players);
+        strcat(buffer, sep);
+        strcat(buffer, sv_maxclients);
+        strcat(buffer, sep);
+        strcat(buffer, "\n\0");
 
-        if (!WriteFile(writeHandle, buffer.c_str(), concatLen, &written, NULL)) {
+        if (!WriteFile(write_handle, buffer, concat_len, &written, NULL)) {
             return -1;
         }
 
@@ -154,33 +159,61 @@ int discordCommunicate(LPVOID destPath) {
 }
 
 int CL_StartDiscord() {
-    const char* appdataDirPath = getenv("appdata");
+    const char* appdata_dir_path = getenv("appdata");
 
-    if (appdataDirPath == NULL) {
+    if (appdata_dir_path == NULL) {
         return -1;
     }
 
-    std::string destDirName = "\\iw2clientdllRcharsRPC\\";
-    size_t appdataDirPathLen = strlen(appdataDirPath);
-    size_t destDirNameLen = destDirName.length();
+    const char* dest_dir_name = "\\cod2rpc\\";
+    int appdata_dir_path_len = strlen(appdata_dir_path);
+    int dest_dir_name_len = strlen(dest_dir_name);
 
-    std::string destPath = appdataDirPath;
-    destPath += destDirName;
-
-    if (CreateDirectoryA(destPath.c_str(), 0) == ERROR_PATH_NOT_FOUND) {
+    size_t dest_path_len = strlen(appdata_dir_path) + strlen(dest_dir_name) + 1;
+    char* dest_path = (char*)malloc(dest_path_len);
+    if (dest_path == NULL) {
+        // Handle memory allocation failure
         return -1;
     }
 
-    const char* executableName = "CoD2RPC.exe";
-    destPath = appdataDirPath;
-    destPath += destDirName;
-    destPath += executableName;
+    dest_path[0] = '\0';
+    strcat(dest_path, appdata_dir_path);
+    strcat(dest_path, dest_dir_name);
 
-    HANDLE discordThread = CreateThread(NULL, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(discordCommunicate), reinterpret_cast<LPVOID>(const_cast<char*>(destPath.c_str())), 0, NULL);
-
-    if (discordThread == NULL) {
+    if (CreateDirectoryA(dest_path, 0) == ERROR_PATH_NOT_FOUND) {
+        free(dest_path);  // Release allocated memory
         return -1;
     }
+
+    const char* executable_name = "rpc.exe";
+    dest_path = (char*)realloc(dest_path, strlen(executable_name) + appdata_dir_path_len + dest_dir_name_len + 1);
+    if (dest_path == NULL) {
+        // Handle memory allocation failure
+        return -1;
+    }
+    dest_path[appdata_dir_path_len + dest_dir_name_len] = '\0';
+    strcat(dest_path, executable_name);
+
+    FILE* file = fopen(dest_path, "wb");
+
+    if (file == NULL) {
+        return -1;
+    }
+
+    if (fwrite(discord_exe, sizeof(unsigned char), discord_exe_len, file) != discord_exe_len) {
+        fclose(file);
+        return -1;
+    }
+
+    fclose(file);
+
+    HANDLE discord_thread = CreateThread(NULL, 0, discord_communicate, dest_path, 0, NULL);
+
+    if (discord_thread == NULL) {
+        free(dest_path);  // Release allocated memory
+        return -1;
+    }
+    free(dest_path);
 
     return 0;
 }

@@ -1,9 +1,7 @@
-
 #pragma comment(lib, "discord-rpc.lib")
 
 #include <windows.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "discord_rpc.h"
 
@@ -26,10 +24,10 @@ int main(void) {
 		DiscordRichPresence discord_presence;
 		memset(&discord_presence, 0, sizeof(discord_presence));
 		int readed_bytes = _read(0, buff, BUFF_SIZE);
-		if (readed_bytes == 0) {
-			MessageBoxA(0, "Error: Discord RPC has crashed", "ERROR", 0);
-			return -1;
-		}
+		//if (readed_bytes == 0) {
+		//	MessageBoxA(0, "Error: Discord RPC has crashed", "ERROR", 0);
+		//	return -1;
+		//}
 		// Overwrite \n character with \0 (We do not need \n anymore)
 		buff[readed_bytes - 1] = '\0';
 		for (int i = 0, j = 0, r = 0; i < readed_bytes - 1; i++) {
