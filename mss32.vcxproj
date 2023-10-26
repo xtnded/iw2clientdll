@@ -66,11 +66,10 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\github\iw2clientdll\discord;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call $(SolutionDir)postevent.bat</Command>
+      <Command>call $(SolutionDir)DebugPostEvent.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -95,7 +94,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call $(SolutionDir)postevent.bat</Command>
+      <Command>call $(SolutionDir)ReleasePostEvent.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -118,7 +117,6 @@
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="chakracore.cpp" />
     <ClCompile Include="cl_main.cpp" />
-    <ClCompile Include="discord.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="gl33.c" />
     <ClCompile Include="helpers.cpp" />

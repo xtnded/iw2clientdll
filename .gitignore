@@ -1,4 +1,4 @@
-*.exe
+[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B[B*.exe
 *.db
 .vs/moto2/v15/.suo
 *.opendb
@@ -20,5 +20,6 @@
 *.db-shm
 *.txt
 *.recipe
-!Release/mss32.dll
+Release/
 .vs
+Debug/

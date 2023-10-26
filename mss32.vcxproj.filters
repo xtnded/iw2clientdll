@@ -137,8 +137,5 @@
     <ClCompile Include="memutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="discord.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
