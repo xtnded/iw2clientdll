@@ -49,8 +49,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\R\Downloads\curl-7.64.0\curl-7.64.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\R\Downloads\curl-7.64.0\curl-7.64.0\build\Win32\VC15\LIB Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -117,6 +115,7 @@
     <ClCompile Include="cg_servercmds.cpp" />
     <ClCompile Include="chakracore.cpp" />
     <ClCompile Include="cl_main.cpp" />
+    <ClCompile Include="discord.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="gl33.c" />
     <ClCompile Include="helpers.cpp" />
