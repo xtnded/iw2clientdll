@@ -102,7 +102,7 @@ void CL_UpdateInfoPacket(netadr_t adr)
 #endif
 }
 
-void CL_Init( void )
+void CL_Init(void)
 {
 	void(*o)(void) = (void(*)(void))0x411650;
 
@@ -119,20 +119,5 @@ void CL_Init( void )
 			MessageBoxA(NULL, "Could not start discord integration", "Discord integration error", NULL);
 		}
 	}
-
 	CG_InitConsoleCommands();
-
-	chakracore_prepare(Com_PrintString);
-	chakracore_eval("console.log(\"^3Loaded ChakraCore\");");
-	const char *eval_repl =
-		"eval_repl = function(code) {"\
-		"	try {					 "\
-		"		var ret = eval(code);"\
-		"		console.log(ret)	 "\
-		"	}						 "\
-		"	catch (e) {				 "\
-		"		console.log(e);		 "\
-		"	}						 "\
-		"};							 ";
-	chakracore_eval(eval_repl);
 }

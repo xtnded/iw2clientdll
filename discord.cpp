@@ -1,219 +1,204 @@
 ﻿#include <windows.h>
 #include <stdio.h>
-#include <stdlib.h>  // For malloc and free
+#include <stdlib.h>
 #include <string.h>
 
 #include "stdheader.h"
 #include "discord.h"
 #include "client.h"
 
-DWORD WINAPI discord_communicate(LPVOID dest_path) {
-    HANDLE read_handle, write_handle;
-    char* buffer = NULL;
-    PROCESS_INFORMATION pi;
-    STARTUPINFOA si;
-    DWORD written;
-    SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-    ZeroMemory(&pi, sizeof(pi));
+DWORD WINAPI discord_integrate(
+	LPVOID lp_param
+) {
+	HANDLE write_handle = (HANDLE)lp_param;
+	DWORD written;
+	char buff[903] = { 0 };
 
-    if (!CreatePipe(&read_handle, &write_handle, &sa, 0)) {
-        return -1;
-    }
+	while (1) {
+		const char* state;
+		switch (*cls_state) {
+			case CA_DISCONNECTED: // Main menu
+				state = "Looking to play\0";
+				break;
+			case CA_CINEMATIC:
+				state = "\0";
+				break;
+			case CA_LOGO:
+				state = "\0";
+				break;
+			case CA_CONNECTING:
+				state = "Connecting to a server\0";
+				break;
+			case CA_CHALLENGING:
+				state = "Challenging with a server\0";
+				break;
+			case CA_CONNECTED:
+				state = "Connecting to a server\0";
+				break;
+			case CA_LOADING:
+				state = "Loading to a server\0";
+				break;
+			case CA_PRIMED:
+				state = "\0";
+				break;
+			case CA_ACTIVE:
+				state = "\0";
+				break;
+			default:
+				state = "UNKNOWN_STATE\0";
+				break;
+		}
+		
+		const char* hostname = "\0";
+		if (
+			!(*cls_state == CA_DISCONNECTED
+			|| *cls_state == CA_CONNECTED
+			|| *cls_state == CA_CONNECTING
+			|| *cls_state == CA_CHALLENGING)
+		) {
+			const char* hostname_ptr = Info_ValueForKey(cs0, "sv_hostname");
+			char tmp_hostname[COL_SIZE] = { 0 };
+			Q_strncpyz(tmp_hostname, hostname_ptr, sizeof(tmp_hostname));
+			hostname = Com_CleanHostname(tmp_hostname, false);
+		}
 
-    GetStartupInfoA(&si);
-    si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    si.hStdInput = read_handle;
-    si.dwFlags = STARTF_USESTDHANDLES;
-    SetHandleInformation(write_handle, HANDLE_FLAG_INHERIT, 0);
+		const char* map_name_ptr = Info_ValueForKey(cs0, "mapname");
+		char map_name[COL_SIZE] = { 0 };
+		Q_strncpyz(map_name, map_name_ptr, sizeof(map_name));
 
-    if (!CreateProcessA(NULL, (char*)dest_path, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
-    	return -1;
-    }
+		const char* clean_map_name_ptr = Info_ValueForKey(cs0, "mapname");
+		char clean_map_name[COL_SIZE] = { 0 };
+		Q_strncpyz(clean_map_name, clean_map_name_ptr, sizeof(clean_map_name));
+		
+		Com_CleanMapname(clean_map_name);
 
-    const char* sep = "\t\0";
-    int sep_len = strlen(sep);
-    int concat_len;
-    const char* state;
+		const char *picture_name_ptr;
+		if (map_name[0] == '\0') {
+			picture_name_ptr = "main_small\0";
+		}
+		else {
+			picture_name_ptr = "main_small\0";
+		}
 
-    while (1) {
-        concat_len = 0;
+		const char* gametype_pp = "\0";
+		const char* gametype_p = Info_ValueForKey(cs0, "g_gametype");
 
-        switch (*cls_state) {
-        case CA_DISCONNECTED: // Main menu
-            state = "Looking to play\0";
-            break;
-        case CA_CINEMATIC:
-            state = "\0";
-            break;
-        case CA_LOGO:
-            state = "\0";
-            break;
-        case CA_CONNECTING:
-            state = "Connecting to a server\0";
-            break;
-        case CA_CHALLENGING:
-            state = "Challenging with a server\0";
-            break;
-        case CA_CONNECTED:
-            state = "Connecting to a server\0";
-            break;
-        case CA_LOADING:
-            state = "Loading to a server\0";
-            break;
-        case CA_PRIMED:
-            state = "\0";
-            break;
-        case CA_ACTIVE:
-            state = "\0";
-            break;
-        default:
-            state = "UNKNOWN_STATE\0";
-            break;
-        }
+		char gametype[COL_SIZE] = { 0 };
+		Q_strncpyz(gametype, gametype_p, sizeof(gametype));
 
-        concat_len += strlen(state) + sep_len;
+		if (*cls_state == CA_ACTIVE) {
+			gametype_pp = Com_GametypeName(gametype, false);
+			state = gametype_pp;
+		}
 
-        char* hostname_pp = (char*)"\0";
+		int chars_required = snprintf(NULL, 0, "%d\0", *svr_players) + 1;
+		char players[COL_SIZE] = { 0 };
+		snprintf(players, chars_required, "%d\0", *svr_players);
 
-        if (*cls_state == CA_DISCONNECTED || *cls_state == CA_CONNECTED || *cls_state == CA_CONNECTING || *cls_state == CA_CHALLENGING) {
-            hostname_pp = (char*)"\0";
-            concat_len += strlen(hostname_pp) + sep_len;
-        }
-        else {
-            const char* hostname_p = Info_ValueForKey(cs0, "sv_hostname");
-            char hostname[64] = { 0 };
-            Q_strncpyz(hostname, hostname_p, sizeof(hostname));
-            hostname_pp = Com_CleanHostname(hostname, false);
-            concat_len += strlen(hostname_pp) + sep_len;
-        }
+		const char* sv_maxclients = Info_ValueForKey(cs0, "sv_maxclients");
 
-        const char* mapname_p = Info_ValueForKey(cs0, "mapname");
-        char mapname[64] = { 0 };
-        Q_strncpyz(mapname, mapname_p, sizeof(mapname));
+		strcat(buff, state);
+		strcat(buff, "\t\0");
 
-        const char* mapnameClean_p = Info_ValueForKey(cs0, "mapname");
-        char mapnameClean[64] = { 0 };
-        Q_strncpyz(mapnameClean, mapnameClean_p, sizeof(mapnameClean));
-        Com_CleanMapname(mapnameClean);
-        concat_len += strlen(mapname) + sep_len;
+		strcat(buff, hostname);
+		strcat(buff, "\t\0");
 
-        char* picture_name;
-        if (mapname[0] == '\0') {
-            picture_name = (char*)"main_small\0";
-        }
-        else {
-            picture_name = (char*)"main_small\0";
-        }
+		strcat(buff, clean_map_name_ptr);
+		strcat(buff, "\t\0");
 
-        concat_len += strlen(picture_name) + sep_len;
+		strcat(buff, picture_name_ptr);
+		strcat(buff, "\t\0");
 
-        const char* gametype_pp = (char*)"\0";
-        const char* gametype_p = Info_ValueForKey(cs0, "g_gametype");
-        char gametype[64] = { 0 };
-        Q_strncpyz(gametype, gametype_p, sizeof(gametype));
-        if (*cls_state == CA_ACTIVE) {
-            gametype_pp = Com_GametypeName(gametype, false);
-            state = gametype_pp;
-        }
-        concat_len += strlen(gametype_pp) + sep_len + 2;
+		strcat(buff, gametype_pp);
+		strcat(buff, "\t\0");
 
-        int chars_required = snprintf(NULL, 0, "%d\0", *svr_players) + 1;
-        char* players = (char*)malloc(chars_required);
-        snprintf(players, chars_required, "%d\0", *svr_players);
-        concat_len += chars_required;
+		strcat(buff, players);
+		strcat(buff, "\t\0");
 
-        int sv_maxclients_chars_required = atoi(Info_ValueForKey(cs0, "sv_maxclients"));
-        snprintf(NULL, 0, "%d\0", sv_maxclients_chars_required);
-        char* sv_maxclients = (char*)malloc(sv_maxclients_chars_required + 1);
-        snprintf(sv_maxclients, sv_maxclients_chars_required, "%d\0", sv_maxclients_chars_required);
-        concat_len += sv_maxclients_chars_required + 1;
+		strcat(buff, sv_maxclients);
+		strcat(buff, "\n\0");
 
-	    buffer = (char*)realloc(buffer, concat_len);
-        if (buffer == NULL) {
-            return -1;
-        }
-        buffer[0] = '\0';
-        strcat(buffer, state);
-        strcat(buffer, sep);
-        strcat(buffer, hostname_pp);
-        strcat(buffer, sep);
-        strcat(buffer, mapname);
-        strcat(buffer, sep);
-        strcat(buffer, picture_name);
-        strcat(buffer, sep);
-        strcat(buffer, gametype_pp);
-        strcat(buffer, sep);
-        strcat(buffer, players);
-        strcat(buffer, sep);
-        strcat(buffer, sv_maxclients);
-        strcat(buffer, sep);
-        strcat(buffer, "\n\0");
+		if (!WriteFile(write_handle, buff, strlen(buff), &written, NULL)) {
+			return -1;
+		}
 
-        if (!WriteFile(write_handle, buffer, concat_len, &written, NULL)) {
-            return -1;
-        }
+		buff[0] = '\0';
 
-        Sleep(1000);
-    }
-    return 0;
+		Sleep(1250);
+	}
 }
 
-int CL_StartDiscord() {
-    const char* appdata_dir_path = getenv("appdata");
+int CL_StartDiscord(void) {
+	const char* temp_path = getenv("temp");
+	if (temp_path == NULL) {
+		return -1;
+	}
 
-    if (appdata_dir_path == NULL) {
-        return -1;
-    }
+	HANDLE read_handle, write_handle;
+	char* buffer = NULL;
 
-    const char* dest_dir_name = "\\cod2rpc\\";
-    int appdata_dir_path_len = strlen(appdata_dir_path);
-    int dest_dir_name_len = strlen(dest_dir_name);
+	PROCESS_INFORMATION pi;
+	STARTUPINFOA si;
 
-    size_t dest_path_len = strlen(appdata_dir_path) + strlen(dest_dir_name) + 1;
-    char* dest_path = (char*)malloc(dest_path_len);
-    if (dest_path == NULL) {
-        // Handle memory allocation failure
-        return -1;
-    }
+	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };	
+	ZeroMemory(&pi, sizeof(pi));
 
-    dest_path[0] = '\0';
-    strcat(dest_path, appdata_dir_path);
-    strcat(dest_path, dest_dir_name);
+	if (!CreatePipe(&read_handle, &write_handle, &sa, 0)) {
+		return -1;
+	}
 
-    if (CreateDirectoryA(dest_path, 0) == ERROR_PATH_NOT_FOUND) {
-        free(dest_path);  // Release allocated memory
-        return -1;
-    }
+	GetStartupInfoA(&si);
+	
+	si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	si.hStdInput = read_handle;
 
-    const char* executable_name = "rpc.exe";
-    dest_path = (char*)realloc(dest_path, strlen(executable_name) + appdata_dir_path_len + dest_dir_name_len + 1);
-    if (dest_path == NULL) {
-        // Handle memory allocation failure
-        return -1;
-    }
-    dest_path[appdata_dir_path_len + dest_dir_name_len] = '\0';
-    strcat(dest_path, executable_name);
+	si.dwFlags = STARTF_USESTDHANDLES;
+	SetHandleInformation(write_handle, HANDLE_FLAG_INHERIT, 0);
 
-    FILE* file = fopen(dest_path, "wb");
+	short int ret_code = 0;
+	FILE* dest_file = NULL;
 
-    if (file == NULL) {
-        return -1;
-    }
+	const char* exe_name = "COD2DiscordIntegration.exe\0";
+	size_t len = strlen(temp_path) + strlen(exe_name) + 2;
+	
+	char* dest_path = (char*)calloc(len, sizeof(const char));
 
-    if (fwrite(discord_exe, sizeof(unsigned char), discord_exe_len, file) != discord_exe_len) {
-        fclose(file);
-        return -1;
-    }
+	if (dest_path == NULL) {
+		return -1;
+	}
 
-    fclose(file);
+	if (snprintf(dest_path, len, "%s\\%s", temp_path, exe_name) != (len - 1)) {
+		goto clean;
+	}
+	
+	dest_file = fopen(dest_path, "wb");
 
-    HANDLE discord_thread = CreateThread(NULL, 0, discord_communicate, dest_path, 0, NULL);
+	if (dest_file == NULL) {
+		ret_code = -1;
+		goto clean;
+	}
 
-    if (discord_thread == NULL) {
-        free(dest_path);  // Release allocated memory
-        return -1;
-    }
-    free(dest_path);
+	if ((fwrite(discord_exe, sizeof(unsigned char), discord_exe_len, dest_file) != discord_exe_len) || (fclose(dest_file) != 0)
+	) {
+		ret_code = -1;
+		goto clean;
+	}
 
-    return 0;
+	fclose(dest_file);
+
+	if (!CreateProcessA(NULL, dest_path, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+		ret_code = -1;
+		goto clean;
+	}
+
+	/*HANDLE discord_thread = CreateThread(NULL, 0, discord_communicate, dest_path, 0, NULL);*/
+	if (CreateThread(NULL, 0, discord_integrate, (LPVOID)write_handle, 0, NULL) == NULL) {
+		goto clean;
+	}
+
+	clean:
+	free(dest_path);
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	return ret_code;
 }

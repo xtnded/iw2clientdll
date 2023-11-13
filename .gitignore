@@ -20,5 +20,6 @@
 *.db-shm
 *.txt
 *.recipe
-!Release/mss32.dll
+Release/
 .vs
+Debug/
