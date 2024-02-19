@@ -7,6 +7,20 @@
 #include "discord.h"
 #include "../client_mp/client.h"
 
+const char* validKeys[1] = {
+	"mp_egyptbase",
+};
+
+bool IsValidImageKey(const char* imageKey) {
+	for (int i = 0; i < 1; ++i) {
+		if (_stricmp(imageKey, validKeys[i]) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 DWORD WINAPI discord_integrate(
 	LPVOID lp_param
 ) {
@@ -69,17 +83,21 @@ DWORD WINAPI discord_integrate(
 		const char* clean_map_name_ptr = Info_ValueForKey(cs0, "mapname");
 		char clean_map_name[COL_SIZE] = { 0 };
 		Q_strncpyz(clean_map_name, clean_map_name_ptr, sizeof(clean_map_name));
-		
 		Com_CleanMapname(clean_map_name);
 
 		const char *picture_name_ptr;
 		if (map_name[0] == '\0') {
-			picture_name_ptr = "main_small\0";
+			picture_name_ptr = (char*)"main_small\0";
+		}
+		else if (IsValidImageKey(map_name)) {
+			// Use the specified image key if it is considered valid
+			picture_name_ptr = map_name;
 		}
 		else {
-			picture_name_ptr = "main_small\0";
+			// Fallback to a default image key when the specified key is not valid
+			picture_name_ptr = (char*)"main_small\0";
 		}
-
+		
 		const char* gametype_pp = "\0";
 		const char* gametype_p = Info_ValueForKey(cs0, "g_gametype");
 
@@ -89,7 +107,7 @@ DWORD WINAPI discord_integrate(
 		if (*cls_state == CA_ACTIVE) {
 			gametype_pp = Com_GametypeName(gametype, false);
 			state = gametype_pp;
-		}
+		} 
 
 		int chars_required = snprintf(NULL, 0, "%d\0", *svr_players) + 1;
 		char players[COL_SIZE] = { 0 };
@@ -103,7 +121,7 @@ DWORD WINAPI discord_integrate(
 		strcat(buff, hostname);
 		strcat(buff, "\t\0");
 
-		strcat(buff, clean_map_name_ptr);
+		strcat(buff, clean_map_name);
 		strcat(buff, "\t\0");
 
 		strcat(buff, picture_name_ptr);

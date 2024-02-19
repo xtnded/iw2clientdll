@@ -345,15 +345,6 @@ char* Com_CleanMapname(char* mapname) {
 	if (strstr(mapname, "mp_") != NULL) // Remove mp_ and xp_ prefixes.
 		mapname = mapname + 3;
 
-	mapname[0] = toupper(mapname[0]); // First letter uppercase.
-
-	for (int i = 0; mapname[i]; i++) { // Replace _ with space and uppercase next letter.
-		if (mapname[i] == '_') {
-			mapname[i] = ' ';
-			mapname[i + 1] = toupper(mapname[i + 1]);
-		}
-	}
-
 	return mapname;
 }
 
