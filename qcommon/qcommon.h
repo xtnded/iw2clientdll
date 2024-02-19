@@ -26,7 +26,7 @@
 extern DWORD gfx_dll_mp;
 #define GFX_OFF(x) (gfx_dll_mp + (x - 0x10000000))
 
-#define MOD_NAME "Moto2"
+#define MOD_NAME "iw2clientdll"
 #define MsgBox(x) MessageBoxA(0,x,0,0)
 
 /* dvar->flags */
@@ -460,7 +460,7 @@ typedef struct Font_s
 	Glyph* glyphs;
 }Font_t;
 
-extern char* __cdecl va(const char* format, ...);
+extern const char* __cdecl va(const char* format, ...);
 extern void Dvar_SetString(const char* _dvar, const char* strval);
 extern void* R_GetCommandBuffer(int bytes);
 extern void RE_SetColor(const float* rgba);
@@ -506,8 +506,10 @@ typedef dvar_t *(*Dvar_RegisterBool_t)(const char* var_name, bool var_value, uns
 extern Dvar_RegisterBool_t Dvar_RegisterBool;
 typedef dvar_t *(*Dvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
 extern Dvar_RegisterFloat_t Dvar_RegisterFloat;
-typedef dvar_t *(*Dvar_RegisterString_t)(const char*, const char*, unsigned short);
+typedef dvar_t* (*Dvar_RegisterString_t)(char const* dvarName, char const* value, unsigned short flags);
 extern Dvar_RegisterString_t Dvar_RegisterString;
+typedef dvar_t* (*Dvar_RegisterInt_t)(const char* dvarName, int value, int min, int max, unsigned short flags);
+extern Dvar_RegisterInt_t Dvar_RegisterInt;
 typedef dvar_t *(*Dvar_SetFromStringByName_t)(const char*, const char*);
 extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
 typedef dvar_t *(*Dvar_Set_t)(const char*, const char*);
@@ -526,8 +528,8 @@ typedef void(*Com_Error_t)(int a1, const char* Format, ...);
 extern Com_Error_t Com_Error;
 typedef void(*Cbuf_AddText_t)(const char*);
 extern Cbuf_AddText_t Cbuf_AddText;
-//typedef void(*CL_DrawText_t)(float* scrPlace, const char* text, int maxChars, float* font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float color, int style);
-//extern CL_DrawText_t CL_DrawText;
+typedef void(*CL_DrawText_t)(char const* text, int maxChars, int font, float x, float y, int horzAlign, int vertAlign, float xScale, float yScale, float const* const color, int style);
+extern CL_DrawText_t CL_DrawText;
 typedef void(*SV_SendServerCommand_t)(int, const char*, ...);
 extern SV_SendServerCommand_t SV_SendServerCommand;
 typedef void(*Com_Quit_f_t)();

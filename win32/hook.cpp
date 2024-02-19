@@ -4,6 +4,7 @@
 #include "../util/storage/storage.h"
 #include "../qcommon/qcommon.h"
 #include "../detours/detours.h"
+#include "../cgame_mp/cg_main_mp.h"
 
 extern dvar_t* cl_imguiEnabled;
 extern bool imgui_enabled(dvar_t*);
@@ -299,7 +300,7 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 
 
 
-#define CLIENT_UPDATE_PORT (25561)
+	#define CLIENT_UPDATE_PORT (25561)
 	*(unsigned int*)(0x4B4F10 + 1) = CLIENT_UPDATE_PORT;
 	__call(0x41162F, (int)CL_ResolveUpdateServers);
 	void CL_UpdateInfoPacket(netadr_t);
@@ -314,6 +315,9 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 
 	void CL_Init( void );
 	__call(0x4348B9, (int)CL_Init);
+
+	void CG_Init(int, int, int);
+	__call(0x402C98, (int)CG_Init);
 
 	void patch_opcode_loadlibrary(void);
 	patch_opcode_loadlibrary();

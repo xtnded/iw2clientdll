@@ -107,7 +107,6 @@ void CL_Init(void)
 
 	oCL_Init();
 
-	Dvar_SetFromStringByName("moto", "yes");
 	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
 	discord = Dvar_RegisterBool("discord", false, CVAR_ARCHIVE);
 	Com_Printf(MOD_NAME " loaded!\n");

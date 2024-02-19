@@ -3,8 +3,9 @@
 #include "../util/stdafx/stdafx.h"
 
 Dvar_RegisterBool_t Dvar_RegisterBool = (Dvar_RegisterBool_t)0x438040;
-Dvar_RegisterFloat_t Cvar_RegisterFloat = (Dvar_RegisterFloat_t)0x438100;
+Dvar_RegisterFloat_t Dvar_RegisterFloat = (Dvar_RegisterFloat_t)0x438100;
 Dvar_RegisterString_t Dvar_RegisterString = (Dvar_RegisterString_t)0x437DE0;
+//Dvar_RegisterInt_t Dvar_RegisterInt = (Dvar_RegisterInt_t)0x437CD0; //crashing
 Dvar_SetFromStringByName_t Dvar_SetFromStringByName = (Dvar_SetFromStringByName_t)0x439150;
 Dvar_Set_t Dvar_Set = (Dvar_Set_t)0x439E90;
 Cmd_AddCommand_t Cmd_AddCommand = (Cmd_AddCommand_t)0x4212F0;
@@ -13,7 +14,7 @@ CL_DrawString_t CL_DrawString = (CL_DrawString_t)0x4129F0;
 Com_Error_t Com_Error = (Com_Error_t)0x4324C0;
 Dvar_GetVariantString_t Dvar_GetVariantString = (Dvar_GetVariantString_t)0x4373A0;
 Cbuf_AddText_t Cbuf_AddText = (Cbuf_AddText_t)0x420AD0; //0x40AD22
-//CL_DrawText_t CL_DrawText = (CL_DrawText_t)0x68A31C;
+CL_DrawText_t CL_DrawText = (CL_DrawText_t)0x68A31C;
 SV_SendServerCommand_t SV_SendServerCommand = (SV_SendServerCommand_t)0x045A670;
 Com_Quit_f_t Com_Quit_f = (Com_Quit_f_t)0x4326C0;//0x435D80
 Com_Printf_t Com_Printf = (Com_Printf_t)0x431EE0;
@@ -24,7 +25,7 @@ R_DrawText_t R_DrawText = (R_DrawText_t)GFX_OFF(0x1000C030);
 //Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x44AA90; //when i call it from the game address it doesn't work properly
 FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0X423240;
 
-char* __cdecl va(const char* format, ...) {
+const char* __cdecl va(const char* format, ...) {
 	va_list argptr;
 #define MAX_VA_STRING   32000
 	static char temp_buffer[MAX_VA_STRING];
@@ -202,7 +203,7 @@ bool Sys_ElevateProgram(char* arg3, bool restart) {
 
 	Sys_GetModulePathInfo(NULL, NULL, &fn, NULL);
 
-	char* arg;
+	const char* arg;
 #ifdef UPDATE_EXE
 	arg = arg3;
 #else
@@ -438,7 +439,7 @@ const char* GetStockGametypeName(char* gt) {
 
 char* GetTxtGametypeName(char* gt, bool colors) {
 	char* name;
-	char* file = va("maps/mp/gametypes/%s.txt", gt);
+	const char* file = va("maps/mp/gametypes/%s.txt", gt);
 	FS_ReadFile(file, (void**)&name);
 
 	if (!name) return NULL;

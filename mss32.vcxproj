@@ -84,7 +84,7 @@
       <AdditionalOptions> /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
-      <AdditionalIncludeDirectories>gl33.h;stdheader.h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>cg_main_mp.h;gl33.h;stdheader.h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,8 +99,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cgame_mp\cg_draw_mp.h" />
     <ClInclude Include="cgame_mp\cg_local.h" />
     <ClInclude Include="cgame_mp\cg_public.h" />
+    <ClInclude Include="cgame_mp\cg_main_mp.h" />
     <ClInclude Include="client_mp\client.h" />
     <ClInclude Include="discord\discord.h" />
     <ClInclude Include="gl33\gl33.h" />
@@ -112,6 +114,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cgame_mp\cg_consolecmds.cpp" />
+    <ClCompile Include="cgame_mp\cg_draw_mp.cpp" />
+    <ClCompile Include="cgame_mp\cg_main_mp.cpp" />
     <ClCompile Include="cgame_mp\cg_servercmds.cpp" />
     <ClCompile Include="client_mp\cl_main.cpp" />
     <ClCompile Include="discord\discord.cpp" />
