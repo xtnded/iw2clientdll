@@ -263,7 +263,7 @@ BOOL __stdcall hSwapBuffers(HDC hdc) {
 			static bool do_once = false;
 			if (!do_once)
 			{
-				Com_Printf("^6bla: %d\n", GetCurrentThreadId());
+				//Com_Printf("^6bla: %d\n", GetCurrentThreadId());
 				//const char *ver = (const char*)glGetString(GL_VERSION);
 				//MessageBoxA(NULL, ver, "", 0);
 				do_once = true;

@@ -21,12 +21,6 @@ void CG_ServerCommand(void)
 {
 	void(*o)(void) = (void(*)(void))0x4D1B80;
 	char *arg = CG_Argv(0);
-#if 0
-	for (int i = 0; i < CG_Argc(); ++i)
-	{
-		Com_Printf("arg %d: %s\n", i, CG_Argv(i));
-	}
-#endif
 
 	switch (*arg)
 	{

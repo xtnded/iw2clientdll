@@ -83,22 +83,9 @@ bool imgui_enabled(dvar_t *cl_imguiEnabled) {
 	return cl_imguiEnabled->current.enabled ? true : false;
 }
 
-int Com_PrintString(const char *str) {
-	Com_Printf("%s", str);
-	return 0;
-}
-
 void CL_UpdateInfoPacket(netadr_t adr)
 {
 	//this works, but UDP unreliable bs and it's loading the game and it wont do the udp packets, so scrap this, and using http file now yay, TODO
-#if 0
-	for (int i = 0; i < CG_Argc(); ++i)
-	{
-		Com_Printf("^6%d: %s", i, CG_Argv(i));
-
-		//MessageBoxA(NULL, CG_Argv(i), "", 0);
-	}
-#endif
 }
 
 void CL_Init(void)

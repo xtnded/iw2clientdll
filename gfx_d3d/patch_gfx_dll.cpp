@@ -636,10 +636,10 @@ void R_Init()
 	//patch_opcode_glbindtexture();
 
 	HWND wnd = FindWindowA(NULL, "Call of Duty 2 Multiplayer");
-	Com_Printf("^6wnd = %02X\n", wnd);
-	Com_Printf("^6bla: %d\n", GetCurrentThreadId());
+	//Com_Printf("^6wnd = %02X\n", wnd);
+	//Com_Printf("^6bla: %d\n", GetCurrentThreadId());
 	//TODO better check
-	Com_Printf("^2dx device = %02X\n", device);
+	//Com_Printf("^2dx device = %02X\n", device);
 
 	if (device)
 	{
