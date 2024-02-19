@@ -2,8 +2,8 @@
 Call of Duty 2 1.4 Client Patch
 
 # Requirements
-At least PC with Windows XP SP3 Update, but recommended is Windows 10. (Supported OS'es: Win XP SP3,Win 7,Win 10, Win 11), non tested OS'es: Win Vista, Win 8
-Disabled VirtualStore
+- At least PC with Windows XP SP3 Update, but recommended is Windows 10.
+- Disabled VirtualStore
 
 # Changes/additions
 - Windowed mode
