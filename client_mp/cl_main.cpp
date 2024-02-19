@@ -103,6 +103,12 @@ void CL_UpdateInfoPacket(netadr_t adr)
 
 void CL_Init(void)
 {
+	bool fix_bugs();
+	if (!fix_bugs()) {
+		MsgBox("Failed to fix bugs in Call of Duty 2");
+		Com_Quit_f();
+	}
+
 	void(*oCL_Init)(void) = (void(*)(void))0x411650;
 
 	oCL_Init();

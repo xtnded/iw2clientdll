@@ -121,6 +121,7 @@
     <ClCompile Include="discord\discord.cpp" />
     <ClCompile Include="win32\dllmain.cpp" />
     <ClCompile Include="gl33\gl33.c" />
+    <ClCompile Include="win32\fixes.cpp" />
     <ClCompile Include="win32\hook.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />

@@ -266,39 +266,37 @@ void applyHooks()
 	oGetCursorPos = (BOOL(__stdcall*)(LPPOINT)) \
 		DetourFunction((LPBYTE)GetCursorPos, (LPBYTE)hGetCursorPos);
 #endif
-	/*
-	Direction Type Address        Text                   
---------- ---- -------        ----                   
-Up        p    sub_464820+7   call    ds:GetCursorPos
-Up        p    sub_4649C0+15  call    ds:GetCursorPos
-Up        r    sub_464820+7   call    ds:GetCursorPos
-Up        r    sub_4649C0+15  call    ds:GetCursorPos
-Up        r    .text:00547DE0 jmp     ds:GetCursorPos*/
-#define __ffcall(addr, func) \
-XUNLOCK((void*)addr,6); \
-*(unsigned char*)(addr) = 0xe8; \
-__call(addr, func); \
-*(unsigned char*)(addr + 5) = 0x90;
+		/*
+		Direction Type Address        Text                   
+	--------- ---- -------        ----                   
+	Up        p    sub_464820+7   call    ds:GetCursorPos
+	Up        p    sub_4649C0+15  call    ds:GetCursorPos
+	Up        r    sub_464820+7   call    ds:GetCursorPos
+	Up        r    sub_4649C0+15  call    ds:GetCursorPos
+	Up        r    .text:00547DE0 jmp     ds:GetCursorPos*/
+	#define __ffcall(addr, func) \
+	XUNLOCK((void*)addr,6); \
+	*(unsigned char*)(addr) = 0xe8; \
+	__call(addr, func); \
+	*(unsigned char*)(addr + 5) = 0x90;
 
 	__ffcall(0x464827, (int)hGetCursorPos);
 	__ffcall(0x4649D5, (int)hGetCursorPos);
 
-	/*
-	Direction Type Address        Text                   
---------- ---- -------        ----                   
-Up        p    sub_464750+4F  call    ds:SetCursorPos
-Up        p    sub_464820+1B  call    ds:SetCursorPos
-Up        p    sub_4649C0+29  call    ds:SetCursorPos
-Up        r    sub_464750+4F  call    ds:SetCursorPos
-Up        r    sub_464820+1B  call    ds:SetCursorPos
-Up        r    sub_4649C0+29  call    ds:SetCursorPos
-          r    .text:00547DE6 jmp     ds:SetCursorPos*/
+		/*
+		Direction Type Address        Text                   
+	--------- ---- -------        ----                   
+	Up        p    sub_464750+4F  call    ds:SetCursorPos
+	Up        p    sub_464820+1B  call    ds:SetCursorPos
+	Up        p    sub_4649C0+29  call    ds:SetCursorPos
+	Up        r    sub_464750+4F  call    ds:SetCursorPos
+	Up        r    sub_464820+1B  call    ds:SetCursorPos
+	Up        r    sub_4649C0+29  call    ds:SetCursorPos
+			  r    .text:00547DE6 jmp     ds:SetCursorPos*/
 
 	__ffcall(0x46479F, (int)hSetCursorPos);
 	__ffcall(0x46483B, (int)hSetCursorPos);
 	__ffcall(0x4649E9, (int)hSetCursorPos);
-
-
 
 	#define CLIENT_UPDATE_PORT (25561)
 	*(unsigned int*)(0x4B4F10 + 1) = CLIENT_UPDATE_PORT;
@@ -307,7 +305,6 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	__call(0x40EF9C, (int)CL_UpdateInfoPacket);
 	int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
 	__call(0x57DCD3, (int)WinMain);
-
 
 	/* doesn't really match up to q3 and its quite inlined changed mhm */
 	void CL_Frame();
@@ -328,22 +325,12 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	void CG_ServerCommand(void);
 	__call(0x4D216F, (int)CG_ServerCommand);
 
-	//patch mic crash issue cod2
-	XUNLOCK((void*)0x005B375C, 1);
-	XUNLOCK((void*)0x005B372D, 1);
-	*(unsigned char*)0x005B375C = 'x';
-	*(unsigned char*)0x005B372D = 'x';
-
 	//ddraw_exists = storage::file_exists(custom_gl_driver) ? 1 : 0;
 	//ddraw_exists = 1;
 	//__jmp(0x464EC0, (int)hook_gfx_driver);
 
 	XUNLOCK((void*)0x4663D1, 10);
 	*(int*)(0x4663D1 + 4) = (int)MyWndProc;
-
-#define PATCH_PUSH_STRING_PTR_VALUE(offset, new_str) \
-	XUNLOCK((void*)offset, 10); \
-	*(const char **)(offset + 1) = new_str;
 
 	PATCH_PUSH_STRING_PTR_VALUE(0x43477C, "1.4");
 	PATCH_PUSH_STRING_PTR_VALUE(0x434701, "1.4");
@@ -353,15 +340,5 @@ Up        r    sub_4649C0+29  call    ds:SetCursorPos
 	PATCH_PUSH_STRING_PTR_VALUE(0x407180, __DATE__ " " __TIME__);
 	PATCH_PUSH_STRING_PTR_VALUE(0x407185, "pc_1.4_1_0");
 
-	//nop splash screen
-	__nop(0x466555, 0x466555 + 5);
-	__nop(0x046664A, 0x046664A + 2);
-	
-	//fix for the blackscreen bug by php
-	__nop(0x4B9569, 2);
-
 	__jmp(0x466270, (int)improper_closed);
-
-	//void CG_DrawFPS();
-	//__call(0x4C774E, (int)CG_DrawFPS);
 }

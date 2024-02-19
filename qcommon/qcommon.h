@@ -67,6 +67,10 @@ extern DWORD gfx_dll_mp;
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
 
+#define PATCH_PUSH_STRING_PTR_VALUE(offset, new_str) \
+	XUNLOCK((void*)offset, 10); \
+	*(const char **)(offset + 1) = new_str;
+
 static float vColorBlack[4] = { 0,0,0,1 };
 static float vColorWhite[4] = { 1, 1, 1, 1 };
 static float vColorSelected[4] = { 1, 1, 0, 1 };
