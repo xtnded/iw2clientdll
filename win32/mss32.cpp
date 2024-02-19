@@ -1,5 +1,5 @@
-#include "stdheader.h"
-#include "storage.h"
+#include "../qcommon/qcommon.h"
+#include "../util/storage/storage.h"
 #include <Windows.h>
 #include "miles32.h"
 

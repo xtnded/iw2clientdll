@@ -9,7 +9,7 @@
     </LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommand>C:\Users\admin\Documents\iw2clientdll\Release\Call of Duty 2 - 1.3\CoD2MP_s.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommand>C:\Program Files (x86)\Steam\steamapps\common\Call of Duty 2\CoD2MP_s.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>.\Release\Call of Duty 2 - 1.3</LocalDebuggerWorkingDirectory>
     <LocalDebuggerCommandArguments>

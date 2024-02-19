@@ -1,8 +1,7 @@
-#include "stdheader.h"
-#include "gl33.h"
-#include "imgui.h"
-#include "cg_public.h"
-#include "chakracore.h"
+#include "../qcommon/qcommon.h"
+#include "../gl33/gl33.h"
+#include "../imgui/imgui.h"
+#include "../cgame_mp/cg_public.h"
 //#include "cg_local.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
@@ -48,8 +47,8 @@ void *consoleFont = (void*)0x966C04;
 //our own kind of cl_frame to handle things each frame / tick
 void CL_Frame()
 {
-	void(*o)() = (void(*)())0x040F850;
-	o();
+	void(*oCL_Frame)() = (void(*)())0x040F850;
+	oCL_Frame();
 
 	imgui_enabled(cl_imguiEnabled);
 
@@ -104,9 +103,9 @@ void CL_UpdateInfoPacket(netadr_t adr)
 
 void CL_Init(void)
 {
-	void(*o)(void) = (void(*)(void))0x411650;
+	void(*oCL_Init)(void) = (void(*)(void))0x411650;
 
-	o();
+	oCL_Init();
 
 	Dvar_SetFromStringByName("moto", "yes");
 	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not

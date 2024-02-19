@@ -1,6 +1,6 @@
-#include "stdheader.h"
+#include "qcommon.h"
 #include "timeapi.h"
-#include "stdafx.h"
+#include "../util/stdafx/stdafx.h"
 
 Dvar_RegisterBool_t Dvar_RegisterBool = (Dvar_RegisterBool_t)0x438040;
 Dvar_RegisterFloat_t Cvar_RegisterFloat = (Dvar_RegisterFloat_t)0x438100;

@@ -1,7 +1,7 @@
-#include "stdheader.h"
+#include "../qcommon/qcommon.h"
 
 #pragma comment(lib, "detours.lib")
-#include "detours.h"
+#include "../detours/detours.h"
 
 __int64 FileSize(std::string name)
 {

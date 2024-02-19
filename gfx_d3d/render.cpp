@@ -1,9 +1,9 @@
-#include "stdheader.h"
-#include "gl33.h"
-#include "detours.h"
-#include "imgui.h"
-#include "imgui_impl_opengl2.h"
-#include "imgui_impl_win32.h"
+#include "../qcommon/qcommon.h"
+#include "../gl33/gl33.h"
+#include "../detours/detours.h"
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_opengl2.h"
+#include "../imgui/imgui_impl_win32.h"
 
 #if 1
 void drawCube(float *org, float size) {

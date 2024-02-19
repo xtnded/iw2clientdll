@@ -1,4 +1,4 @@
-#include "stdheader.h"
+#include "../qcommon/qcommon.h"
 #include <Windows.h>
 
 HINSTANCE hInst;

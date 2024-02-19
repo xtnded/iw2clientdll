@@ -1,4 +1,4 @@
-#include "stdheader.h"
+#include "../qcommon/qcommon.h"
 
 //char*(*CG_Argv)(int) = (char*(*)(int))0x4BF890;
 

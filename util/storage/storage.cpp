@@ -1,4 +1,4 @@
-#include "stdheader.h"
+#include "../../qcommon/qcommon.h"
 #include "storage.h"
 
 const char * storage::get_appdata_folder(char * szPath, int dwLen, bool create)

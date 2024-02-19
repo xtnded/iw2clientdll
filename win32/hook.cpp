@@ -1,9 +1,9 @@
 #include <Windows.h>
 
-#include "memutil.h"
-#include "storage.h"
-#include "stdheader.h"
-#include "detours.h"
+#include "../util/memutil/memutil.h"
+#include "../util/storage/storage.h"
+#include "../qcommon/qcommon.h"
+#include "../detours/detours.h"
 
 extern dvar_t* cl_imguiEnabled;
 extern bool imgui_enabled(dvar_t*);

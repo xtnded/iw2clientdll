@@ -48,7 +48,7 @@
 #include <OpenGL/gl.h>
 #else
 //#include <GL/gl.h>
-#include "gl33.h"
+#include "../gl33/gl33.h"
 #endif
 
 // OpenGL Data

@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "stdheader.h"
+#include "../qcommon/qcommon.h"
 #include "discord.h"
-#include "client.h"
+#include "../client_mp/client.h"
 
 DWORD WINAPI discord_integrate(
 	LPVOID lp_param

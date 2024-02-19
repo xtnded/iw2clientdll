@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stdafx.h"
-#include "memutil.h"
+#include "../util/stdafx/stdafx.h"
+#include "../util/memutil/memutil.h"
 
 #define cls_realtime ((int*)0x68A520)
 #define cls_state ((int*)0x609FE0)

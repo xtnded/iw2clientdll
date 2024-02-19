@@ -1,15 +1,14 @@
-#include "stdheader.h"
-#include "memutil.h"
-#include "storage.h"
-#include "helpers.h"
+#include "../qcommon/qcommon.h"
+#include "../util/memutil/memutil.h"
+#include "../../util/storage/storage.h"
 
 // DirectX
 #include <d3d9.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
-#include "imgui.h"
-#include "imgui_impl_dx9.h"
-#include "imgui_impl_win32.h"
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_dx9.h"
+#include "../imgui/imgui_impl_win32.h"
 
 #pragma comment(lib, "d3d9.lib")
 IDirect3DDevice9 *device = NULL;
