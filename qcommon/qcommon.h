@@ -71,10 +71,6 @@ extern DWORD gfx_dll_mp;
 	XUNLOCK((void*)offset, 10); \
 	*(const char **)(offset + 1) = new_str;
 
-#define PATCH_PUSH_INT_PTR_VALUE(offset, new_int) \
-	XUNLOCK((void*)offset, 10); \
-	*(int *)(offset + 1) = new_int;
-
 static float vColorBlack[4] = { 0,0,0,1 };
 static float vColorWhite[4] = { 1, 1, 1, 1 };
 static float vColorSelected[4] = { 1, 1, 0, 1 };
@@ -468,26 +464,8 @@ typedef struct Font_s
 	Glyph* glyphs;
 }Font_t;
 
-typedef struct
-{
-	byte* data;
-	int		maxsize;
-	int		cursize;
-} cmd_t;
-
-enum conChannel_t
-{
-	CON_CHANNEL_DONT_FILTER = 0x0,
-	CON_CHANNEL_ERROR = 0x1,
-	CON_CHANNEL_GAMENOTIFY = 0x2,
-	CON_CHANNEL_BOLDGAME = 0x3,
-	CON_CHANNEL_LOGFILEONLY = 0x4,
-};
-
 extern const char* __cdecl va(const char* format, ...);
 extern void Dvar_SetString(const char* _dvar, const char* strval);
-extern void* R_GetCommandBuffer(int bytes);
-extern void RE_SetColor(const float* rgba);
 extern int Sys_IsAdmin();
 extern int Sys_GetModulePathInfo(HMODULE module, char** path, char** filename, char** extension);
 extern bool Sys_ElevateProgram(char* arg3, bool restart);
@@ -496,12 +474,9 @@ extern const char* Info_ValueForKey(const char* s, const char* key);
 extern char* Q_CleanStr(char* string, bool colors);
 extern char* Com_CleanHostname(char* string, bool colors);
 extern char* Com_CleanMapname(char* mapname);
-extern const char* GetStockGametypeName(char* gt);
-extern char* GetTxtGametypeName(char* gt, bool colors);
+const char* GetStockGametypeName(char* gt);
+char* GetTxtGametypeName(char* gt, bool colors);
 extern const char* Com_GametypeName(char* gt, bool colors);
-extern void Cbuf_ExecuteText(int exec_when, const char* text);
-extern int Com_sprintf(char* dest, size_t size, const char* format, ...);
-extern void Com_DPrintf(conChannel_t channel, const char* fmt, ...);
 
 typedef struct
 {
@@ -529,14 +504,6 @@ typedef enum
 	CA_ACTIVE = 8
 } connstate_t;
 
-enum DvarSetSource
-{
-	DVAR_SOURCE_INTERNAL = 0x0,
-	DVAR_SOURCE_EXTERNAL = 0x1,
-	DVAR_SOURCE_SCRIPT = 0x2,
-	DVAR_SOURCE_DEVGUI = 0x3,
-};
-
 typedef dvar_t *(*Dvar_RegisterBool_t)(const char* var_name, bool var_value, unsigned short flags);
 extern Dvar_RegisterBool_t Dvar_RegisterBool;
 typedef dvar_t *(*Dvar_RegisterFloat_t)(const char* var_name, float var_value, float var_min, float var_max, unsigned short flags);
@@ -549,7 +516,7 @@ typedef dvar_t *(*Dvar_SetFromStringByName_t)(const char*, const char*);
 extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
 typedef dvar_t *(*Dvar_Set_t)(const char*, const char*);
 extern Dvar_Set_t Dvar_Set;
-typedef dvar_t *(*Dvar_SetVariant_t)(const char* var_name, const char* value, bool force);
+typedef dvar_t *(*Dvar_SetVariant_t)(cvar_s* dvar, DvarValue value, enum DvarSetSource source);
 extern Dvar_SetVariant_t Dvar_SetVariant;
 typedef dvar_t *(*Dvar_GetVariantString_t)(const char*);
 extern Dvar_GetVariantString_t Dvar_GetVariantString;
@@ -581,24 +548,6 @@ extern R_DrawText_t R_DrawText;
 //extern Info_ValueForKey_t Info_ValueForKey;
 typedef int(*FS_ReadFile_t)(const char* qpath, void** buffer);
 extern FS_ReadFile_t FS_ReadFile;
-typedef int(*SV_XModelGet_t)(const char* name);
-extern SV_XModelGet_t SV_XModelGet;
-typedef int(*SV_XModelGet_t)(const char* name);
-extern SV_XModelGet_t SV_XModelGet;
-typedef int(*SV_SetConfigstring_t)(unsigned int index, const char* val);
-extern SV_SetConfigstring_t SV_SetConfigstring;
-typedef int(*Scr_Error_t)(const char* error);
-extern Scr_Error_t Scr_Error;
-//typedef int(*Cmd_Argc_t)(void);
-//extern Cmd_Argc_t Cmd_Argc;
-//typedef const char* (*Cmd_Argv_t)(int arg);
-//extern Cmd_Argv_t Cmd_Argv;
-typedef int(*Dvar_GetInt_t)(const char* dvarName);
-extern Dvar_GetInt_t Dvar_GetInt;
-typedef void (*Cmd_ExecuteString_t)(const char* text);
-extern Cmd_ExecuteString_t Cmd_ExecuteString;
-typedef void (*Cbuf_ExecuteInternal_t)(void);
-extern Cbuf_ExecuteInternal_t Cbuf_ExecuteInternal;
 
 template <typename T, typename ... Ts>
 T call(size_t addr, Ts ... ts) {

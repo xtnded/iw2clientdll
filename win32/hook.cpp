@@ -6,7 +6,6 @@
 #include "../detours/detours.h"
 #include "../cgame_mp/cg_main_mp.h"
 #include "../util/version/version.h"
-#include "../qcommon/common.h"
 
 extern dvar_t* cl_imguiEnabled;
 extern bool imgui_enabled(dvar_t*);
@@ -327,17 +326,14 @@ void applyHooks()
 	void CG_ServerCommand(void);
 	__call(0x4D216F, (int)CG_ServerCommand);
 
+	__jmp(0x466270, (int)improper_closed);
+
 	//ddraw_exists = storage::file_exists(custom_gl_driver) ? 1 : 0;
 	//ddraw_exists = 1;
 	//__jmp(0x464EC0, (int)hook_gfx_driver);
 
 	XUNLOCK((void*)0x4663D1, 10);
 	*(int*)(0x4663D1 + 4) = (int)MyWndProc;
-
-	void Com_Init_Try_Block_Function(char*);
-	__call(0x434A66, (int)Com_Init_Try_Block_Function);
-
-	__jmp(0x466270, (int)improper_closed);
 
 	PATCH_PUSH_STRING_PTR_VALUE(0x43477C, BUILD);
 	PATCH_PUSH_STRING_PTR_VALUE(0x434701, BUILD);

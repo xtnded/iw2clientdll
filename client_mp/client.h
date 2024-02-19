@@ -21,8 +21,6 @@
 //#define cls_keyCatchers ((PINT)0x155F2C4)
 //#define cls_keyCatchers ((PINT)0x96B654)
 //#define cls_servername ((char*)0x155F2CC)
-#define cached_models ((PINT)001943500)
-#define level_initializing ((PINT)0x193A79C)
 
 #define cs0 (clc_stringData + clc_stringOffsets[0])
 #define cs1 (clc_stringData + clc_stringOffsets[1])

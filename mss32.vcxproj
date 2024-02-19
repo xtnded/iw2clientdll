@@ -62,16 +62,14 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <AdditionalOptions> /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>detours/detours.lib;libcpmtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call "$(SolutionDir)DebugPostEvent.bat"</Command>
+      <Command>call $(SolutionDir)DebugPostEvent.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,10 +105,7 @@
     <ClInclude Include="cgame_mp\cg_main_mp.h" />
     <ClInclude Include="client_mp\client.h" />
     <ClInclude Include="discord\discord.h" />
-    <ClInclude Include="gfx_d3d\r_dvars.h" />
     <ClInclude Include="gl33\gl33.h" />
-    <ClInclude Include="qcommon\cmd.h" />
-    <ClInclude Include="qcommon\common.h" />
     <ClInclude Include="util\memutil\memutil.h" />
     <ClInclude Include="util\stdafx\stdafx.h" />
     <ClInclude Include="qcommon\qcommon.h" />
@@ -125,10 +120,6 @@
     <ClCompile Include="cgame_mp\cg_servercmds.cpp" />
     <ClCompile Include="client_mp\cl_main.cpp" />
     <ClCompile Include="discord\discord.cpp" />
-    <ClCompile Include="gfx_d3d\r_dvars.cpp" />
-    <ClCompile Include="qcommon\cmd.cpp" />
-    <ClCompile Include="qcommon\common.cpp" />
-    <ClCompile Include="universal\dvar.cpp" />
     <ClCompile Include="win32\dllmain.cpp" />
     <ClCompile Include="gl33\gl33.c" />
     <ClCompile Include="win32\fixes.cpp" />

@@ -1,7 +1,6 @@
 #include "../qcommon/qcommon.h"
 #include "../util/memutil/memutil.h"
 #include "../../util/storage/storage.h"
-#include "r_dvars.h"
 
 // DirectX
 #include <d3d9.h>
@@ -629,6 +628,7 @@ void R_Resize(int w, int h)
 
 void R_Init()
 {
+
 	void(*oR_Init)(void) = (void(*)(void))GFX_OFF(0x10013080);
 	oR_Init();
 
@@ -679,7 +679,6 @@ void patch_gfx_dll(DWORD base)
 	addr = GFX_OFF(0x10012730);
 	//__call(GFX_OFF(0x1001294D), (int)creating_dx_device);
 	__call(GFX_OFF(0x100132A2), (int)R_Init);
-	__call(GFX_OFF(0x1001309C), (int)R_RegisterDvars);
 	/*
 	if (storage::file_exists("qdraw.dll"))
 	{

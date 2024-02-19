@@ -37,10 +37,10 @@ bool fix_bugs() {
 	*(unsigned char*)0x005B375C = 'x';
 	*(unsigned char*)0x005B372D = 'x';
 
-#ifdef DEBUG
-	//G_ModelIndex MAX_MODELS increase attempt to 1024
-	*(int*)0x50E37A = 0x400;
-#endif
+	#ifdef DEBUG
+		//G_ModelIndex MAX_MODELS increase attempt to 1024
+		* (int*)0x50E37A = 0x400;
+	#endif
 
 	return true;
 }
