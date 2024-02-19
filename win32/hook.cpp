@@ -328,6 +328,9 @@ void applyHooks()
 
 	__jmp(0x466270, (int)improper_closed);
 
+	//void Com_Init_Try_Block_Function(char*); //TODO
+	//__call(0x434A66, (int)Com_Init_Try_Block_Function);
+
 	//ddraw_exists = storage::file_exists(custom_gl_driver) ? 1 : 0;
 	//ddraw_exists = 1;
 	//__jmp(0x464EC0, (int)hook_gfx_driver);

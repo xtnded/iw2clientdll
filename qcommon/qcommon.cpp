@@ -1,18 +1,22 @@
 #include "qcommon.h"
 #include "timeapi.h"
 #include "../util/stdafx/stdafx.h"
+#include "../util/unzip/unzip.h"
 
 Dvar_RegisterBool_t Dvar_RegisterBool = (Dvar_RegisterBool_t)0x438040;
 Dvar_RegisterFloat_t Dvar_RegisterFloat = (Dvar_RegisterFloat_t)0x438100;
 Dvar_RegisterString_t Dvar_RegisterString = (Dvar_RegisterString_t)0x437DE0;
 //Dvar_RegisterInt_t Dvar_RegisterInt = (Dvar_RegisterInt_t)0x437CD0; //crashing
 Dvar_SetFromStringByName_t Dvar_SetFromStringByName = (Dvar_SetFromStringByName_t)0x439150;
+Dvar_SetString_t Dvar_SetString = (Dvar_SetString_t)0x438900;
+Dvar_SetStringByName_t Dvar_SetStringByName = (Dvar_SetStringByName_t)0x439020;
 Dvar_Set_t Dvar_Set = (Dvar_Set_t)0x439E90;
 Cmd_AddCommand_t Cmd_AddCommand = (Cmd_AddCommand_t)0x4212F0;
 Com_PrintMessage_t Com_PrintMessage = (Com_PrintMessage_t)0x431D10;
 CL_DrawString_t CL_DrawString = (CL_DrawString_t)0x4129F0;
 Com_Error_t Com_Error = (Com_Error_t)0x4324C0;
 Dvar_GetVariantString_t Dvar_GetVariantString = (Dvar_GetVariantString_t)0x4373A0;
+Dvar_ChangeResetValue_t Dvar_ChangeResetValue = (Dvar_ChangeResetValue_t)0x437A20;
 Cbuf_AddText_t Cbuf_AddText = (Cbuf_AddText_t)0x420AD0; //0x40AD22
 CL_DrawText_t CL_DrawText = (CL_DrawText_t)0x68A31C;
 SV_SendServerCommand_t SV_SendServerCommand = (SV_SendServerCommand_t)0x045A670;
@@ -23,7 +27,11 @@ SCR_DrawSmallStringExt_t SCR_DrawSmallStringExt = (SCR_DrawSmallStringExt_t)0x41
 CG_DrawBigDevStringColor_t CG_DrawBigDevStringColor = (CG_DrawBigDevStringColor_t)0; //0x4C2600 crashing reason is unknown
 R_DrawText_t R_DrawText = (R_DrawText_t)GFX_OFF(0x1000C030);
 //Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x44AA90; //when i call it from the game address it doesn't work properly
-FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0X423240;
+FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x423240; //cdecl
+FS_FreeFile_t FS_FreeFile = (FS_FreeFile_t)0x4232F0;
+FS_ListFiles_t FS_ListFiles = (FS_ListFiles_t)0x423A70; 
+Cbuf_Execute_t Cbuf_Execute = (Cbuf_Execute_t)0x433B87;
+Com_SafeMode_t Com_SafeMode = (Com_SafeMode_t)0x4327D0;
 
 const char* __cdecl va(const char* format, ...) {
 	va_list argptr;
@@ -53,12 +61,6 @@ const char* __cdecl va(const char* format, ...) {
 	index += len + 1;
 
 	return buf;
-}
-
-void Dvar_SetString(const char* _dvar, const char* strval) {
-	void* dvar = Dvar_GetVariantString(_dvar);
-	if (!dvar)
-		Dvar_RegisterString(_dvar, strval, 4160);
 }
 
 typedef struct {
@@ -395,4 +397,34 @@ const char* Com_GametypeName(char* gt, bool colors) {
 		return name;
 	else
 		return (colors) ? gt : Q_CleanStr(gt, colors);
+}
+
+void Z_FreeInternal(void* ptr)
+{
+	free(ptr);
+}
+
+searchpath_t* fs_searchpaths;
+void FS_CheckFileSystemStarted()
+{
+	assert(fs_searchpaths);
+}
+
+void FS_FreeFileList(char** list)
+{
+	int i;
+
+	FS_CheckFileSystemStarted();
+
+	if (!list)
+	{
+		return;
+	}
+
+	for (i = 0; list[i]; i++)
+	{
+		Z_FreeInternal(list[i]);
+	}
+
+	Z_FreeInternal(list);
 }

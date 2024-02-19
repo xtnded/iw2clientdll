@@ -13,6 +13,28 @@
 #include <Shlwapi.h>
 #include <ShellAPI.h>
 
+#ifdef NDEBUG
+
+#define assert(expression) ((void)0)
+
+#else
+
+_ACRTIMP void __cdecl _wassert(
+	_In_z_ wchar_t const* _Message,
+	_In_z_ wchar_t const* _File,
+	_In_   unsigned       _Line
+);
+
+#define assert(expression) (void)(                                                       \
+            (!!(expression)) ||                                                              \
+            (_wassert(_CRT_WIDE(#expression), _CRT_WIDE(__FILE__), (unsigned)(__LINE__)), 0) \
+        )
+
+#endif
+
+#define MAX_OSPATH          256
+#define qboolean int
+
 /*Render stuff*/
 #define	MAX_RENDER_COMMANDS	0x40000
 #define	SMP_FRAMES		2
@@ -465,7 +487,6 @@ typedef struct Font_s
 }Font_t;
 
 extern const char* __cdecl va(const char* format, ...);
-extern void Dvar_SetString(const char* _dvar, const char* strval);
 extern int Sys_IsAdmin();
 extern int Sys_GetModulePathInfo(HMODULE module, char** path, char** filename, char** extension);
 extern bool Sys_ElevateProgram(char* arg3, bool restart);
@@ -477,6 +498,7 @@ extern char* Com_CleanMapname(char* mapname);
 const char* GetStockGametypeName(char* gt);
 char* GetTxtGametypeName(char* gt, bool colors);
 extern const char* Com_GametypeName(char* gt, bool colors);
+extern void FS_FreeFileList(char** list);
 
 typedef struct
 {
@@ -490,6 +512,52 @@ typedef struct
 	float realViewableMax[2];
 	float subScreenLeft;
 }ScreenPlacement;
+
+#if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)
+/* like the STRICT of WIN32, we define a pointer that cannot be converted
+	from (void*) without cast */
+typedef struct TagunzFile__ { int unused; } unzFile__;
+typedef unzFile__* unzFile;
+#else
+typedef void* unzFile;
+#endif
+
+struct fileInIwd_t
+{
+	unsigned long pos;
+	char* name;
+	fileInIwd_t* next;
+};
+
+struct iwd_t
+{
+	char iwdFilename[MAX_OSPATH];
+	char iwdBasename[MAX_OSPATH];
+	char iwdGamename[MAX_OSPATH];
+	unzFile handle;
+	int checksum;
+	int pure_checksum;
+	int numFiles;
+	int referenced;
+	int hashSize;
+	fileInIwd_t** hashTable;
+	fileInIwd_t* buildBuffer;
+};
+
+struct directory_t
+{
+	char path[MAX_OSPATH];
+	char gamedir[MAX_OSPATH];
+};
+
+struct searchpath_t
+{
+	searchpath_t* next;
+	iwd_t* iwd;
+	directory_t* dir;
+	qboolean localized;
+	int language;
+};
 
 typedef enum
 {
@@ -514,12 +582,18 @@ typedef dvar_t* (*Dvar_RegisterInt_t)(const char* dvarName, int value, int min, 
 extern Dvar_RegisterInt_t Dvar_RegisterInt;
 typedef dvar_t *(*Dvar_SetFromStringByName_t)(const char*, const char*);
 extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
+typedef void (*Dvar_SetString_t)(dvar_t* dvar, const char* value);
+extern Dvar_SetString_t Dvar_SetString;
+typedef void (*Dvar_SetStringByName_t)(const char* dvarName, const char* value);
+extern Dvar_SetStringByName_t Dvar_SetStringByName;
 typedef dvar_t *(*Dvar_Set_t)(const char*, const char*);
 extern Dvar_Set_t Dvar_Set;
 typedef dvar_t *(*Dvar_SetVariant_t)(cvar_s* dvar, DvarValue value, enum DvarSetSource source);
 extern Dvar_SetVariant_t Dvar_SetVariant;
 typedef dvar_t *(*Dvar_GetVariantString_t)(const char*);
 extern Dvar_GetVariantString_t Dvar_GetVariantString;
+typedef dvar_t* (*Dvar_ChangeResetValue_t)(dvar_t* dvar, union DvarValue value);
+extern Dvar_ChangeResetValue_t Dvar_ChangeResetValue;
 typedef void(*Cmd_AddCommand_t)(const char*, void*);
 extern Cmd_AddCommand_t Cmd_AddCommand;
 typedef void(*Com_PrintMessage_t)(int, const char*);
@@ -548,6 +622,14 @@ extern R_DrawText_t R_DrawText;
 //extern Info_ValueForKey_t Info_ValueForKey;
 typedef int(*FS_ReadFile_t)(const char* qpath, void** buffer);
 extern FS_ReadFile_t FS_ReadFile;
+typedef void (*FS_FreeFile_t)(void* buffer);
+extern FS_FreeFile_t FS_FreeFile;
+typedef char** (*FS_ListFiles_t)(const char* path, const char* extension, int* numfiles);
+extern FS_ListFiles_t FS_ListFiles;
+typedef void (*Cbuf_Execute_t)(void);
+extern Cbuf_Execute_t Cbuf_Execute;
+typedef qboolean (*Com_SafeMode_t)(void);
+extern Com_SafeMode_t Com_SafeMode;
 
 template <typename T, typename ... Ts>
 T call(size_t addr, Ts ... ts) {

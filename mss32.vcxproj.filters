@@ -54,6 +54,12 @@
     <ClInclude Include="util\version\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="qcommon\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\unzip\unzip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win32\win_main.cpp">
@@ -128,9 +134,6 @@
     <ClCompile Include="util\storage\storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="util\unzip\unzip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="xuid\xuid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -141,6 +144,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="win32\fixes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\unzip\unzip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
