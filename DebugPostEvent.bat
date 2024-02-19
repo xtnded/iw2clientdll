@@ -1,3 +1,3 @@
 @echo off
 cd Debug
-copy mss32.dll "Call of Duty 2 - 1.3"
+copy mss32.dll "C:\Program Files (x86)\Steam\steamapps\common\Call of Duty 2"

@@ -21,6 +21,8 @@
 //#define cls_keyCatchers ((PINT)0x155F2C4)
 //#define cls_keyCatchers ((PINT)0x96B654)
 //#define cls_servername ((char*)0x155F2CC)
+#define cached_models ((PINT)001943500)
+#define level_initializing ((PINT)0x193A79C)
 
 #define cs0 (clc_stringData + clc_stringOffsets[0])
 #define cs1 (clc_stringData + clc_stringOffsets[1])
@@ -33,7 +35,6 @@ static bool unlock_client_structure() {
 
 		XUNLOCK((void*)cls_realtime, sizeof(int));
 		XUNLOCK((void*)cls_state, sizeof(int));
-		XUNLOCK((void*)clc_stringData, 4);
 		//XUNLOCK((void*)cls_downloadRestart, 4);
 		XUNLOCK((void*)0x609FE0, 4);
 		//XUNLOCK((void*)clc_connectTime, 4);

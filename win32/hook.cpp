@@ -5,6 +5,8 @@
 #include "../qcommon/qcommon.h"
 #include "../detours/detours.h"
 #include "../cgame_mp/cg_main_mp.h"
+#include "../util/version/version.h"
+#include "../qcommon/common.h"
 
 extern dvar_t* cl_imguiEnabled;
 extern bool imgui_enabled(dvar_t*);
@@ -332,13 +334,16 @@ void applyHooks()
 	XUNLOCK((void*)0x4663D1, 10);
 	*(int*)(0x4663D1 + 4) = (int)MyWndProc;
 
-	PATCH_PUSH_STRING_PTR_VALUE(0x43477C, "1.4");
-	PATCH_PUSH_STRING_PTR_VALUE(0x434701, "1.4");
-	PATCH_PUSH_STRING_PTR_VALUE(0x4064C1, "1.4");
-	PATCH_PUSH_STRING_PTR_VALUE(0x4346DE, __DATE__ " " __TIME__);
-	PATCH_PUSH_STRING_PTR_VALUE(0x4346E3, "pc_1.4_1_0");
-	PATCH_PUSH_STRING_PTR_VALUE(0x407180, __DATE__ " " __TIME__);
-	PATCH_PUSH_STRING_PTR_VALUE(0x407185, "pc_1.4_1_0");
+	void Com_Init_Try_Block_Function(char*);
+	__call(0x434A66, (int)Com_Init_Try_Block_Function);
 
 	__jmp(0x466270, (int)improper_closed);
+
+	PATCH_PUSH_STRING_PTR_VALUE(0x43477C, BUILD);
+	PATCH_PUSH_STRING_PTR_VALUE(0x434701, BUILD);
+	PATCH_PUSH_STRING_PTR_VALUE(0x4064C1, BUILD);
+	PATCH_PUSH_STRING_PTR_VALUE(0x4346DE, __DATE__ " " __TIME__);
+	PATCH_PUSH_STRING_PTR_VALUE(0x4346E3, BUILD);
+	PATCH_PUSH_STRING_PTR_VALUE(0x407180, __DATE__ " " __TIME__);
+	PATCH_PUSH_STRING_PTR_VALUE(0x407185, BUILD);
 }

@@ -1,6 +1,7 @@
 #include "qcommon.h"
 #include "timeapi.h"
 #include "../util/stdafx/stdafx.h"
+#include "cmd.h"
 
 Dvar_RegisterBool_t Dvar_RegisterBool = (Dvar_RegisterBool_t)0x438040;
 Dvar_RegisterFloat_t Dvar_RegisterFloat = (Dvar_RegisterFloat_t)0x438100;
@@ -8,6 +9,7 @@ Dvar_RegisterString_t Dvar_RegisterString = (Dvar_RegisterString_t)0x437DE0;
 //Dvar_RegisterInt_t Dvar_RegisterInt = (Dvar_RegisterInt_t)0x437CD0; //crashing
 Dvar_SetFromStringByName_t Dvar_SetFromStringByName = (Dvar_SetFromStringByName_t)0x439150;
 Dvar_Set_t Dvar_Set = (Dvar_Set_t)0x439E90;
+Dvar_SetVariant_t Dvar_SetVariant = (Dvar_SetVariant_t)0x437090;
 Cmd_AddCommand_t Cmd_AddCommand = (Cmd_AddCommand_t)0x4212F0;
 Com_PrintMessage_t Com_PrintMessage = (Com_PrintMessage_t)0x431D10;
 CL_DrawString_t CL_DrawString = (CL_DrawString_t)0x4129F0;
@@ -18,12 +20,20 @@ CL_DrawText_t CL_DrawText = (CL_DrawText_t)0x68A31C;
 SV_SendServerCommand_t SV_SendServerCommand = (SV_SendServerCommand_t)0x045A670;
 Com_Quit_f_t Com_Quit_f = (Com_Quit_f_t)0x4326C0;//0x435D80
 Com_Printf_t Com_Printf = (Com_Printf_t)0x431EE0;
-Dvar_SetVariant_t Dvar_SetVariant = (Dvar_SetVariant_t)0x437090;
 SCR_DrawSmallStringExt_t SCR_DrawSmallStringExt = (SCR_DrawSmallStringExt_t)0x4146A0;
 CG_DrawBigDevStringColor_t CG_DrawBigDevStringColor = (CG_DrawBigDevStringColor_t)0; //0x4C2600 crashing reason is unknown
 R_DrawText_t R_DrawText = (R_DrawText_t)GFX_OFF(0x1000C030);
 //Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x44AA90; //when i call it from the game address it doesn't work properly
-FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0X423240;
+FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x423240;
+SV_XModelGet_t SV_XModelGet = (SV_XModelGet_t)0x490330;
+SV_SetConfigstring_t SV_SetConfigstring = (SV_SetConfigstring_t)0x457CE0;
+Scr_Error_t Scr_Error = (Scr_Error_t)0x44A990;
+//Cmd_Argc_t Cmd_Argc = (Cmd_Argc_t)0xB1A480;
+//Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0xB1A498; //dword_B1A498
+Dvar_GetInt_t Dvar_GetInt = (Dvar_GetInt_t)0x4373A0;
+//Cbuf_ExecuteText_t Cbuf_ExecuteText = (Cbuf_ExecuteText_t)0x420B30; //cdecl
+Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x4214C0; //usercall
+Cbuf_ExecuteInternal_t Cbuf_ExecuteInternal = (Cbuf_ExecuteInternal_t)0x420C20; 
 
 const char* __cdecl va(const char* format, ...) {
 	va_list argptr;
@@ -70,68 +80,6 @@ typedef struct {
 	renderCommandList_t	commands;
 } backEndData_t;
 backEndData_t* backEndData[SMP_FRAMES];
-
-/*
-============
-R_GetCommandBuffer
-
-make sure there is enough command space, waiting on the
-render thread if needed.
-============
-*/
-
-void* R_GetCommandBuffer(int bytes) {
-	renderCommandList_t* cmdList;
-
-	cmdList = &backEndData[1]->commands;
-
-	if (cmdList == NULL) {
-		// Handle the case where cmdList is NULL
-		// Print an error message, throw an exception, or take appropriate action
-		// Example:
-		Com_Error(ERR_FATAL, "Error: cmdList is NULL.");
-		return NULL; // or throw an exception, exit the function, etc.
-	}
-
-	// always leave room for the end of list command
-	if (cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS) {
-		if (bytes > MAX_RENDER_COMMANDS - 4) {
-			Com_Error(ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes);
-		}
-		// if we run out of room, just start dropping commands
-		return NULL;
-	}
-
-	cmdList->used += bytes;
-
-	return cmdList->cmds + cmdList->used - bytes;
-}
-
-/*
-=============
-RE_SetColor
-
-Passing NULL will set the color to white
-=============
-*/
-void RE_SetColor(const float* rgba) {
-	setColorCommand_t* cmd;
-	cmd = static_cast<setColorCommand_t*>(R_GetCommandBuffer(sizeof(*cmd)));
-	if (!cmd) {
-		return;
-	}
-	cmd->commandId = RC_SET_COLOR;
-	if (!rgba) {
-		static float colorWhite[4] = { 1, 1, 1, 1 };
-
-		rgba = colorWhite;
-	}
-
-	cmd->color[0] = rgba[0];
-	cmd->color[1] = rgba[1];
-	cmd->color[2] = rgba[2];
-	cmd->color[3] = rgba[3];
-}
 
 int Sys_IsAdmin() {
 	int b;
@@ -466,4 +414,167 @@ const char* Com_GametypeName(char* gt, bool colors) {
 		return name;
 	else
 		return (colors) ? gt : Q_CleanStr(gt, colors);
+}
+
+/*
+============
+Cbuf_InsertText
+Adds command text immediately after the current command
+Adds a \n to the text
+============
+*/
+cmd_t		cmd_text;
+void Cbuf_InsertText(const char* text)
+{
+	int len;
+	int i;
+
+	len = strlen(text) + 1;
+
+	if (len + cmd_text.cursize > cmd_text.maxsize)
+	{
+		Com_Printf("Cbuf_InsertText overflowed\n");
+		return;
+	}
+
+	// move the existing command text
+	for (i = cmd_text.cursize - 1; i >= 0; i--)
+	{
+		cmd_text.data[i + len] = cmd_text.data[i];
+	}
+
+	// copy the new text in
+	memcpy(cmd_text.data, text, len - 1);
+
+	// add a \n
+	cmd_text.data[len - 1] = '\n';
+	cmd_text.cursize += len;
+}
+
+/*
+============
+Cbuf_ExecuteText
+============
+*/
+void Cbuf_ExecuteText(int exec_when, const char* text)
+{
+	switch (exec_when)
+	{
+	case EXEC_NOW:
+			Cbuf_ExecuteInternal();
+		break;
+	case EXEC_INSERT:
+		Cbuf_InsertText(text);
+		break;
+	case EXEC_APPEND:
+		Cbuf_AddText(text);
+		break;
+	default:
+		Com_Error(ERR_FATAL, "Cbuf_ExecuteText: bad exec_when");
+	}
+}
+
+int Com_sprintf(char* dest, size_t size, const char* format, ...)
+{
+	int result;
+	va_list va;
+
+	va_start(va, format);
+	result = vsnprintf(dest, size, format, va);
+	va_end(va);
+
+	dest[size - 1] = '\0';
+
+	return result;
+}
+
+extern dvar_t* com_developer;
+/*
+================
+Com_DPrintf
+
+A Com_Printf that only shows up if the "developer" cvar is set
+================
+*/
+void Com_DPrintf(conChannel_t channel, const char* fmt, ...) 
+{
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	if (!com_developer || !com_developer->current.integer) {
+		return;			// don't confuse non-developers with techie stuff...
+	}
+
+	msg[0] = '^';
+	msg[1] = '2';
+
+	va_start(argptr, fmt);
+	vsnprintf(&msg[2], (sizeof(msg) - 3), fmt, argptr);
+	va_end(argptr);
+
+	Com_PrintMessage(channel, msg);
+}
+
+void Z_Free(void* ptr) {
+	free(ptr);
+}
+
+void* GetClearedMemory(int size) {
+	void* ptr;
+	ptr = (void*)malloc(size);
+}
+
+void* Z_Malloc(int size) {
+	return GetClearedMemory(size);
+}
+
+int Q_CountChar(const char* string, char tocount)
+{
+	int count;
+
+	for (count = 0; *string; string++)
+	{
+		if (*string == tocount)
+			count++;
+	}
+
+	return count;
+}
+
+short   ShortSwap(short l)
+{
+	byte    b1, b2;
+
+	b1 = l & 255;
+	b2 = (l >> 8) & 255;
+
+	return (b1 << 8) + b2;
+}
+
+int    LongSwap(int l)
+{
+	byte    b1, b2, b3, b4;
+
+	b1 = l & 255;
+	b2 = (l >> 8) & 255;
+	b3 = (l >> 16) & 255;
+	b4 = (l >> 24) & 255;
+
+	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
+}
+
+float FloatSwap(float f) {
+	union
+	{
+		float f;
+		byte b[4];
+	} dat1, dat2;
+
+
+	dat1.f = f;
+	dat2.b[0] = dat1.b[3];
+	dat2.b[1] = dat1.b[2];
+	dat2.b[2] = dat1.b[1];
+	dat2.b[3] = dat1.b[0];
+	return dat2.f;
 }

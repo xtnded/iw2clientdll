@@ -2,11 +2,21 @@
 #include "../gl33/gl33.h"
 #include "../imgui/imgui.h"
 #include "../cgame_mp/cg_public.h"
+#include "../qcommon/common.h"
+
+#include <stdio.h>
+#include <string.h>
 //#include "cg_local.h"
 
 dvar_t *con_restricted = (dvar_t*)0x5E132C;
 dvar_t *cl_imguiEnabled;
 dvar_t *discord;
+dvar_t* cl_updateavailable;
+dvar_t* cl_updatefiles;
+dvar_t* cl_updateoldversion;
+dvar_t* cl_updateversion;
+dvar_t* cl_updateservers;
+
 int *cls_keyCatchers = (int*)0x96B654;
 #define KEYCATCH_CONSOLE (1)
 
@@ -100,8 +110,13 @@ void CL_Init(void)
 
 	oCL_Init();
 
-	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, CVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
-	discord = Dvar_RegisterBool("discord", false, CVAR_ARCHIVE);
+	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, DVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
+	discord = Dvar_RegisterBool("discord", false, DVAR_ARCHIVE);
+	cl_updateavailable = Dvar_RegisterBool("cl_updateavailable", 0, CVAR_ROM); //"Enable the HUD display"
+	cl_updatefiles = Dvar_RegisterString("cl_updatefiles", "", CVAR_ROM); //"The file that is being updated"
+	cl_updateoldversion = Dvar_RegisterString("cl_updateoldversion", "", CVAR_ROM); //"The version before update"
+	cl_updateversion = Dvar_RegisterString("cl_updateversion", "", CVAR_ROM); //"The updated version"
+	cl_updateservers = Dvar_RegisterString("cl_updateservers", "", 0); //"Update server list."
 	Com_Printf(MOD_NAME " loaded!\n");
 
 	if (discord->current.enabled) {
@@ -111,4 +126,19 @@ void CL_Init(void)
 		}
 	}
 	CG_InitConsoleCommands();
+}
+
+const char* SV_GetConfigstringConst(int index)
+{
+	const char* configstring;
+
+	if (index < 0 || index >= 2048)
+		return NULL;
+
+	configstring = *(const char**)(0xCD6598 + index * sizeof(int));
+
+	if (!configstring)
+		return "";
+
+	return configstring;
 }
