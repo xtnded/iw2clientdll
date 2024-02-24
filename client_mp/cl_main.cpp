@@ -101,7 +101,7 @@ void CL_Init(void)
 	oCL_Init();
 
 	cl_imguiEnabled = Dvar_RegisterBool("cl_imguiEnabled", false, DVAR_ARCHIVE); // by default it's false because not everyone wants to use an imgui, Flag set to Archive because why not
-	discord = Dvar_RegisterBool("discord", false, DVAR_ARCHIVE);
+	discord = Dvar_RegisterBool("discord", true, DVAR_ARCHIVE);
 	Com_Printf(MOD_NAME " loaded!\n");
 
 	if (discord->current.enabled) {
