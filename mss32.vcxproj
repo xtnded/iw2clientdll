@@ -49,8 +49,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\R\Downloads\curl-7.64.0\curl-7.64.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\R\Downloads\curl-7.64.0\curl-7.64.0\build\Win32\VC15\LIB Release;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -59,18 +59,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;MOTO2_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <AdditionalOptions> /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\github\iw2clientdll\discord;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call $(SolutionDir)postevent.bat</Command>
+      <Command>call $(SolutionDir)DebugPostEvent.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,6 +84,7 @@
       <AdditionalOptions> /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <AdditionalIncludeDirectories>cg_main_mp.h;gl33.h;stdheader.h;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,61 +92,65 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>detours/detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>call $(SolutionDir)postevent.bat</Command>
+      <Command>call "$(SolutionDir)ReleasePostEvent.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="cg_local.h" />
-    <ClInclude Include="cg_public.h" />
-    <ClInclude Include="chakracore.h" />
-    <ClInclude Include="client.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="discord.h" />
-    <ClInclude Include="gl33.h" />
-    <ClInclude Include="helpers.h" />
-    <ClInclude Include="memutil.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="stdheader.h" />
-    <ClInclude Include="storage.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="cgame_mp\cg_draw_mp.h" />
+    <ClInclude Include="cgame_mp\cg_local.h" />
+    <ClInclude Include="cgame_mp\cg_public.h" />
+    <ClInclude Include="cgame_mp\cg_main_mp.h" />
+    <ClInclude Include="client_mp\client.h" />
+    <ClInclude Include="discord\discord.h" />
+    <ClInclude Include="gl33\gl33.h" />
+    <ClInclude Include="qcommon\common.h" />
+    <ClInclude Include="util\memutil\memutil.h" />
+    <ClInclude Include="util\stdafx\stdafx.h" />
+    <ClInclude Include="qcommon\qcommon.h" />
+    <ClInclude Include="util\storage\storage.h" />
+    <ClInclude Include="util\targetver\targetver.h" />
+    <ClInclude Include="util\unzip\unzip.h" />
+    <ClInclude Include="util\version\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cg_consolecmds.cpp" />
-    <ClCompile Include="cg_servercmds.cpp" />
-    <ClCompile Include="chakracore.cpp" />
-    <ClCompile Include="cl_main.cpp" />
-    <ClCompile Include="discord.cpp" />
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="gl33.c" />
-    <ClCompile Include="helpers.cpp" />
-    <ClCompile Include="hook.cpp" />
-    <ClCompile Include="imgui.cpp" />
-    <ClCompile Include="imgui_demo.cpp" />
-    <ClCompile Include="imgui_draw.cpp" />
-    <ClCompile Include="imgui_impl_dx9.cpp" />
-    <ClCompile Include="imgui_impl_opengl2.cpp" />
-    <ClCompile Include="imgui_impl_win32.cpp" />
-    <ClCompile Include="imgui_widgets.cpp" />
-    <ClCompile Include="librarymodule.cpp" />
-    <ClCompile Include="memutil.cpp" />
-    <ClCompile Include="mss32.cpp" />
-    <ClCompile Include="patch_gfx_dll.cpp" />
-    <ClCompile Include="render.cpp" />
-    <ClCompile Include="stdheader.cpp" />
-    <ClCompile Include="storage.cpp">
+    <ClCompile Include="cgame_mp\cg_consolecmds.cpp" />
+    <ClCompile Include="cgame_mp\cg_draw_mp.cpp" />
+    <ClCompile Include="cgame_mp\cg_main_mp.cpp" />
+    <ClCompile Include="cgame_mp\cg_servercmds.cpp" />
+    <ClCompile Include="client_mp\cl_main.cpp" />
+    <ClCompile Include="discord\discord.cpp" />
+    <ClCompile Include="qcommon\common.cpp" />
+    <ClCompile Include="util\unzip\unzip.cpp" />
+    <ClCompile Include="win32\dllmain.cpp" />
+    <ClCompile Include="gl33\gl33.c" />
+    <ClCompile Include="win32\fixes.cpp" />
+    <ClCompile Include="win32\hook.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_dx9.cpp" />
+    <ClCompile Include="imgui\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="win32\librarymodule.cpp" />
+    <ClCompile Include="util\memutil\memutil.cpp" />
+    <ClCompile Include="win32\mss32.cpp" />
+    <ClCompile Include="gfx_d3d\patch_gfx_dll.cpp" />
+    <ClCompile Include="gfx_d3d\render.cpp" />
+    <ClCompile Include="qcommon\qcommon.cpp" />
+    <ClCompile Include="util\storage\storage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="unzip.cpp" />
-    <ClCompile Include="win_main.cpp" />
-    <ClCompile Include="xuid.cpp" />
-    <ClCompile Include="xuidtool.cpp" />
-    <ClCompile Include="zip.cpp" />
+    <ClCompile Include="win32\win_main.cpp" />
+    <ClCompile Include="xuid\xuid.cpp" />
+    <ClCompile Include="xuid\xuidtool.cpp" />
+    <ClCompile Include="util\zip\zip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

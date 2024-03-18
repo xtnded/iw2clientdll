@@ -1,9 +1,7 @@
 *.exe
 *.db
-.vs/moto2/v15/.suo
 *.opendb
 *.ipch
-.vs/mss32/v15/.suo
 *.obj
 *.tlog
 *.pdb
@@ -13,14 +11,12 @@
 *.log
 *.pch
 *.idb
-*.lib
 *.ilk
-*.dll
 *.db-wal
 *.db-shm
 *.txt
 *.recipe
 Release/
 .vs
+.vscode
 Debug/
-ReleasePostEvent.bat

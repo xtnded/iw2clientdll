@@ -15,129 +15,141 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="qcommon\qcommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdheader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="storage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="memutil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl33.h">
+    <ClInclude Include="cgame_mp\cg_local.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="cg_local.h">
+    <ClInclude Include="cgame_mp\cg_public.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="cg_public.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="chakracore.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="helpers.h">
+    <ClInclude Include="discord\discord.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="discord.h">
+    <ClInclude Include="client_mp\client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="client.h">
+    <ClInclude Include="cgame_mp\cg_draw_mp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cgame_mp\cg_main_mp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl33\gl33.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\memutil\memutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\stdafx\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\storage\storage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\targetver\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\version\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\unzip\unzip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="win32\win_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="unzip.cpp">
+    <ClCompile Include="win32\mss32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zip.cpp">
+    <ClCompile Include="client_mp\cl_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="storage.cpp">
+    <ClCompile Include="cgame_mp\cg_servercmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="win_main.cpp">
+    <ClCompile Include="gfx_d3d\patch_gfx_dll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook.cpp">
+    <ClCompile Include="gfx_d3d\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mss32.cpp">
+    <ClCompile Include="imgui\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cl_main.cpp">
+    <ClCompile Include="imgui\imgui_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cg_servercmds.cpp">
+    <ClCompile Include="imgui\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xuid.cpp">
+    <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xuidtool.cpp">
+    <ClCompile Include="imgui\imgui_impl_win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="librarymodule.cpp">
+    <ClCompile Include="imgui\imgui_impl_opengl2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="patch_gfx_dll.cpp">
+    <ClCompile Include="imgui\imgui_impl_dx9.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render.cpp">
+    <ClCompile Include="cgame_mp\cg_consolecmds.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl33.c">
+    <ClCompile Include="qcommon\qcommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui.cpp">
+    <ClCompile Include="discord\discord.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_demo.cpp">
+    <ClCompile Include="cgame_mp\cg_draw_mp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_draw.cpp">
+    <ClCompile Include="cgame_mp\cg_main_mp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_widgets.cpp">
+    <ClCompile Include="win32\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_win32.cpp">
+    <ClCompile Include="gl33\gl33.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_opengl2.cpp">
+    <ClCompile Include="win32\hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_dx9.cpp">
+    <ClCompile Include="win32\librarymodule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cg_consolecmds.cpp">
+    <ClCompile Include="util\memutil\memutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="chakracore.cpp">
+    <ClCompile Include="util\storage\storage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="helpers.cpp">
+    <ClCompile Include="xuid\xuid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdheader.cpp">
+    <ClCompile Include="xuid\xuidtool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="memutil.cpp">
+    <ClCompile Include="util\zip\zip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="discord.cpp">
+    <ClCompile Include="win32\fixes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\unzip\unzip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
